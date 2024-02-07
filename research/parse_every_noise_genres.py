@@ -1,14 +1,15 @@
 from html.parser import HTMLParser
 import os
+import json
 
 
 class GenreParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.inside_desired_div = False
-        self.desired_div_data = []
-        self.current_div_attrs = {}
-        self.current_data = []
+        self.genres = []   # list of genre objects (dicts for now)
+        self.genre_div_attrs = {}
+        self.genre_data = []
 
     def handle_starttag(self, tag, attrs):
         if tag == 'div':
@@ -19,28 +20,27 @@ class GenreParser(HTMLParser):
 
                 for key, value in attrs:
                     if key == 'preview_url':
-                        self.current_div_attrs[key] = value
+                        self.genre_div_attrs[key] = value
 
                     if key == 'style':
                         style_dict = self.parse_style(value)
-                        self.current_div_attrs.update(style_dict)
+                        self.genre_div_attrs.update(style_dict)
                 
 
     def handle_endtag(self, tag):
         if tag == 'div' and self.inside_desired_div:
             self.inside_desired_div = False
-            self.desired_div_data.append({
-                'data': ''.join(self.current_data),
-                **self.current_div_attrs
+            self.genres.append({
+                'genre': self.genre_data[0],
+                **self.genre_div_attrs
             })
             # Reset current data and attributes for the next div
-            self.current_data = []
-            self.current_div_attrs = {}
+            self.genre_data = []
+            self.genre_div_attrs = {}
 
     def handle_data(self, data):
         if self.inside_desired_div:
-            data = data.replace("» ","")
-            self.current_data.append(data)
+            self.genre_data.append(data)
 
     def parse_style(self, style_value):
 
@@ -60,16 +60,25 @@ class GenreParser(HTMLParser):
                 property_name, property_value = map(str.strip, property_value)
                 style_dict[property_name] = property_value
 
-        # # Extract specific values for 'top', 'left', and 'font-size'
-        # top_value = style_dict.get('top', None)
-        # left_value = style_dict.get('left', None)
-        # font_size_value = style_dict.get('font-size', None)
+
+        print("Style Dict:", style_dict)
+
+        # Now let's adjust the data to represent what it means
+        parsed_dict = {}
+
+        for key, value in style_dict.items(): 
+            if key == "color":
+                parsed_dict["energy_score"] = int(value[1:3], 16)  # parse "red" value of color
+                parsed_dict["dynamic_variation_score"] = int(value[3:5], 16)  # parse "green" value of color 
+                parsed_dict["instrumentalness_score"] = int(value[5:7], 16)  # parse "blue" value of color 
+            elif key == "top":
+                parsed_dict["organic_mechanical_score"] = int(value.replace('px', ''))  # lower score is more mechanical and electric, higher score is more organic / acoustic
+            elif key == "left":
+                parsed_dict["dense_spiky_score"] = int(value.replace('px', '')) # lower score is denser and more atmospheric, higher score is spikier and bouncier
+            elif key == "font-size":
+                parsed_dict["popularity_score"] = int(value.replace('%',''))  # higher score, more popular
                 
-        # self.current_div_attrs['popularity_score'] =
-        # self.current_div_attrs['organic_mechanical_score'] =   # higher score is more mechanical and electric, lower score is more organic / acoustic
-        # self.current_div_attrs['dense_spiky_score'] =   # higher score is spikier and bouncier, lower score is denser and more atmospheric 
-                
-        return style_dict
+        return parsed_dict
 
 
     
@@ -80,7 +89,11 @@ html_file_path = os.path.join(script_dir, 'every_noise_genre_snapshot_2024_02_07
 with open(html_file_path, 'r', encoding='utf-8') as file:
     html_content = file.read()
 
+
+# Run the parser
 parser = GenreParser()
 parser.feed(html_content)
 
-print(parser.desired_div_data)
+# Save genre dictionary to file
+with open('every_noise_genres.json', 'w') as file:
+    json.dump(parser.genres, file)
