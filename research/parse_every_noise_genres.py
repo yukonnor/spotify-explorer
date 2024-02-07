@@ -60,9 +60,6 @@ class GenreParser(HTMLParser):
                 property_name, property_value = map(str.strip, property_value)
                 style_dict[property_name] = property_value
 
-
-        print("Style Dict:", style_dict)
-
         # Now let's adjust the data to represent what it means
         parsed_dict = {}
 
