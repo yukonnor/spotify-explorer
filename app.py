@@ -19,9 +19,9 @@ spotify = oauth.register(
     client_kwargs={'scope': 'user-library-read'}  # Adjust the scope as needed
 )
 
-print("Spotify OAuth Object: ", spotify)
-
 # Auth ################################################
+
+# QUESTION: Put this and calls to API in separate file?
 
 def get_token():
     # Fetch data from Spotify API using client credentials
@@ -59,9 +59,10 @@ def spotify_index():
 
     return render_template('category-index.html', categories=categories)
 
-@app.route('/playlist-analyzer/<playlist_id>')
-def playlist_analyzer(playlist_id):
+@app.route('/playlist-inspector/<playlist_id>')
+def playlist_inspector(playlist_id):
     
+    # QUESTION: Get token each request or get it when I need it (after an hour)?
     access_token = get_token()
     
     playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
@@ -74,11 +75,34 @@ def playlist_analyzer(playlist_id):
     # TODO: Handle playlists with episodes instead of tracks (track.type == episode)
     # TODO: Handle tracks with multiple artists
     response = requests.get(playlist_url, headers=headers, params=params)
+
     playlist_name = response.json().get('name', {})
     playlist_url = f'https://open.spotify.com/playlist/{playlist_id}'
     items = response.json().get('tracks', {}).get('items', {})
 
-    return render_template('playlist-analyzer.html', playlist_name=playlist_name, playlist_url=playlist_url, items=items)
+    # flatten results into track data
+    tracks = [item["track"] for item in items]
+
+    # Get track details and append to tracks
+    track_ids = [track['id'] for track in tracks]
+    track_ids_param = ','.join(track_ids)
+
+    track_audio_features_url = 'https://api.spotify.com/v1/audio-features'
+    params = {'ids': track_ids_param} 
+
+    response = requests.get(track_audio_features_url, headers=headers, params=params)
+
+    track_audio_features = response.json().get('audio_features', {})
+    
+    # Add audio features to tracks dict
+    for index, track in enumerate(track_audio_features):
+        if track: 
+            tracks[index]["danceability"] = track.get("danceability", None)
+            tracks[index]["energy"] = track.get("danceability", None)
+
+    # TODO: Get artist details (namely genres) and append to tracks
+
+    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
 
 if __name__ == "__main__":
     app.run(debug=True)

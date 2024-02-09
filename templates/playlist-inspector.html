@@ -1,5 +1,5 @@
 {% extends 'base.html' %} 
-{% block title %}Create Post{% endblock %} 
+{% block title %}Playlist Inspector{% endblock %} 
 {% block content %}
 
     <div class="container">
@@ -14,24 +14,28 @@
                 <th scope="col">Artist</th>
                 <th scope="col">Album</th>
                 <th scope="col">Popularity Score</th>
+                <th scope="col">Danceability</th>
+                <th scope="col">Energy</th>
                 </tr>
             </thead>
             <tbody>
-            {% for item in items %}
+            {% for track in tracks %}
             <tr> 
                 <td>
-                    {% if item.track.preview_url %}
-                    <button onclick="playPreview('{{item.track.preview_url}}')">Play Preview</button>
+                    {% if track.preview_url %}
+                    <button onclick="playPreview('{{track.preview_url}}')">Play Preview</button>
                     <!-- Audio element for playback -->
                     <audio id="audioPlayer" controls style="display: none;">
                         Your browser does not support the audio element.
                     </audio>
                     {% endif %}
                 </td>
-                <td>{{ item.track.name }}</td>
-                <td>{{ item.track.artists[0].name }}</td>
-                <td>{{ item.track.album.name }}</td>
-                <td>{{ item.track.popularity }} </td>
+                <td>{{ track.name }}</td>
+                <td>{{ track.artists[0].name }}</td>
+                <td>{{ track.album.name }}</td>
+                <td>{{ track.popularity }} </td>
+                <td>{{ track.danceability }} </td>
+                <td>{{ track.energy }} </td>
             </tr>
             {% endfor %}
             </tbody>
