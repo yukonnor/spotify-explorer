@@ -22,6 +22,7 @@ spotify = oauth.register(
 # Auth ################################################
 
 # QUESTION: Put this and calls to API in separate file?
+# QUESTION: Can I make a separate dev account using spotify free platform? I probably shouldn't use my personal acct.
 
 def get_token():
     # Fetch data from Spotify API using client credentials
@@ -91,7 +92,6 @@ def playlist_inspector(playlist_id):
     params = {'ids': track_ids_param} 
 
     response = requests.get(track_audio_features_url, headers=headers, params=params)
-
     track_audio_features = response.json().get('audio_features', {})
     
     # Add audio features to tracks dict
@@ -100,7 +100,22 @@ def playlist_inspector(playlist_id):
             tracks[index]["danceability"] = track.get("danceability", None)
             tracks[index]["energy"] = track.get("danceability", None)
 
-    # TODO: Get artist details (namely genres) and append to tracks
+    # Get artist details (namely genres) and append to tracks
+    artist_ids = [track['artists'][0]['id'] for track in tracks]
+    aritst_ids_param = ','.join(artist_ids)
+
+    artists_url = 'https://api.spotify.com/v1/artists'
+    params = {'ids': aritst_ids_param} 
+
+    response = requests.get(artists_url, headers=headers, params=params)
+    artists = response.json().get('artists', {})
+
+    # Add artist metadata to tracks dict
+    for index, artist in enumerate(artists):
+        if artist: 
+            tracks[index]["artist_followers"] = artist.get("followers", None).get("total", None)
+            tracks[index]["artist_popularity"] = artist.get("popularity", None)
+            tracks[index]["artist_genres"] = artist.get("genres", None)
 
     return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
 
