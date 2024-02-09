@@ -21,8 +21,9 @@ spotify = oauth.register(
 
 print("Spotify OAuth Object: ", spotify)
 
-@app.route('/test-connection')
-def spotify_index():
+# Auth ################################################
+
+def get_token():
     # Fetch data from Spotify API using client credentials
     token_request_params = {
         'grant_type': 'client_credentials',
@@ -30,22 +31,22 @@ def spotify_index():
         'client_secret': SPOTIFY_CLIENT_SECRET,
     }
 
-    print("Request being sent to Spotify token endpoint:")
-    print(f"URL: {spotify.access_token_url}")
-    print(f"Params: {token_request_params}")
-
     # Make the request and obtain the response
     response = requests.post(spotify.access_token_url, data=token_request_params)
-
-    print("Response from Spotify token endpoint:")
-    print(f"Status Code: {response.status_code}")
-    print(f"Content: {response.text}")
 
     response_data = response.json()
 
     # TODO: Check if response_data includes access_token
     access_token = response_data['access_token']
-    print(f"Access token: {access_token}")
+
+    return access_token
+
+################################################
+
+@app.route('/test-connection')
+def spotify_index():
+    
+    access_token = get_token()
 
     # Use the access token to make API requests
     categories_url = 'https://api.spotify.com/v1/browse/categories'
@@ -53,10 +54,31 @@ def spotify_index():
     params = {'limit': 20, 'offset': 0} 
 
     # TODO: Handle status code != 200
-    categories_response = requests.get(categories_url, headers=headers)
+    categories_response = requests.get(categories_url, headers=headers, params=params)
     categories = categories_response.json().get('categories', {}).get('items', [])
 
     return render_template('category-index.html', categories=categories)
+
+@app.route('/playlist-analyzer/<playlist_id>')
+def playlist_analyzer(playlist_id):
+    
+    access_token = get_token()
+    
+    playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
+    headers = {'Authorization': f'Bearer {access_token}'}  
+    fields =  'id, href, name, limit, tracks(next, offset, total, items(track(id, name, popularity, is_playable, preview_url, type, artists(id, name), album(name, href))))'
+    params = {'fields': fields, 'market': 'US'} 
+
+    # TODO: Handle status code != 200 & Private Playlists
+    # TODO: Handle large playlists (next query and lists too long to handle)
+    # TODO: Handle playlists with episodes instead of tracks (track.type == episode)
+    # TODO: Handle tracks with multiple artists
+    response = requests.get(playlist_url, headers=headers, params=params)
+    playlist_name = response.json().get('name', {})
+    playlist_url = f'https://open.spotify.com/playlist/{playlist_id}'
+    items = response.json().get('tracks', {}).get('items', {})
+
+    return render_template('playlist-analyzer.html', playlist_name=playlist_name, playlist_url=playlist_url, items=items)
 
 if __name__ == "__main__":
     app.run(debug=True)

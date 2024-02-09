@@ -1,0 +1,73 @@
+{% extends 'base.html' %} 
+{% block title %}Create Post{% endblock %} 
+{% block content %}
+
+    <div class="container">
+        <h1>{{ playlist_name }}</h1>
+        <p><a href="{{playlist_url}}" target="_blank">link -></a></p>
+        <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">Preview</th>
+                <th scope="col">Track</th>
+                <th scope="col">Artist</th>
+                <th scope="col">Album</th>
+                <th scope="col">Popularity Score</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+            <tr> 
+                <td>
+                    {% if item.track.preview_url %}
+                    <button onclick="playPreview('{{item.track.preview_url}}')">Play Preview</button>
+                    <!-- Audio element for playback -->
+                    <audio id="audioPlayer" controls style="display: none;">
+                        Your browser does not support the audio element.
+                    </audio>
+                    {% endif %}
+                </td>
+                <td>{{ item.track.name }}</td>
+                <td>{{ item.track.artists[0].name }}</td>
+                <td>{{ item.track.album.name }}</td>
+                <td>{{ item.track.popularity }} </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+            
+        </ul>
+    </div>
+    
+
+    <!-- JavaScript to handle playback -->
+    <script>
+        var currentlyPlaying = false;
+
+        function playPreview(previewUrl) {
+            var audioPlayer = document.getElementById("audioPlayer");
+
+            // Check if the audio is currently playing
+            if (currentlyPlaying) {
+                // If playing, pause the audio
+                audioPlayer.pause();
+                currentlyPlaying = false;
+            } else {
+                // If not playing, set the audio element source to the Spotify preview URL
+                audioPlayer.src = previewUrl;
+
+                // Play the audio
+                audioPlayer.play();
+                currentlyPlaying = true;
+
+                // Attach an event listener for the 'ended' event to reset the playback state
+                audioPlayer.addEventListener('ended', function() {
+                    currentlyPlaying = false;
+                });
+            }
+        }
+    </script>
+
+{% endblock %}
