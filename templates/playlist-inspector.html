@@ -33,9 +33,9 @@
                     </audio>
                     {% endif %}
                 </td>
-                <td>{{ track.name }}</td>
-                <td>{{ track.artists[0].name }}</td>
-                <td>{{ track.album.name }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name_trunc }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name_trunc }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name_trunc }}</td>
                 <td>{{ track.popularity }} </td>
                 <td>{{ track.danceability }} </td>
                 <td>{{ track.energy }} </td>

@@ -75,6 +75,7 @@ def playlist_inspector(playlist_id):
     # TODO: Handle large playlists (next query and lists too long to handle)
     # TODO: Handle playlists with episodes instead of tracks (track.type == episode)
     # TODO: Handle tracks with multiple artists
+    # TODO: Set width of columns to be constant arround trunc length
     response = requests.get(playlist_url, headers=headers, params=params)
 
     playlist_name = response.json().get('name', {})
@@ -84,7 +85,13 @@ def playlist_inspector(playlist_id):
     # flatten results into track data
     tracks = [item["track"] for item in items]
 
-    # Get track details and append to tracks
+    # truncate long track and artist names
+    for track in tracks:
+        track['artists'][0]['name_trunc'] = truncate_string(track['artists'][0]['name'], 22)
+        track['name_trunc']= truncate_string(track['name'], 28)
+        track['album']['name_trunc']= truncate_string(track['album']['name'], 28)
+
+    # Get track audiot features and append to tracks
     track_ids = [track['id'] for track in tracks]
     track_ids_param = ','.join(track_ids)
 
@@ -118,6 +125,16 @@ def playlist_inspector(playlist_id):
             tracks[index]["artist_genres"] = artist.get("genres", None)
 
     return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
+
+# Misc Functions ################################################
+
+def truncate_string(s, max_length):
+    return (s[:max_length] + '...') if len(s) > max_length else s
+
+
+
+
+# Run ################################################
 
 if __name__ == "__main__":
     app.run(debug=True)
