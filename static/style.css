@@ -1,18 +1,47 @@
-/* table.table-fit {
-    width: auto !important;
-    table-layout: auto !important;
-}
-table.table-fit thead th,
-table.table-fit tbody td,
-table.table-fit tfoot th,
-table.table-fit tfoot td {
-    width: auto !important;
-} */
-
-th {
-    white-space: nowrap;
-}
-
+th,
 td {
     white-space: nowrap;
+}
+
+/* Max width for Track and Album Name */
+td:nth-child(2),
+th:nth-child(2),
+td:nth-child(4),
+th:nth-child(4) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
+}
+
+/* Max width for Arists Name */
+td:nth-child(3),
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(3) {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Max width for Genres */
+td:nth-child(8),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(8) {
+    min-width: 380px;
+    max-width: 380px;
+    white-space: normal;
+}
+
+/* Default styling for the badge */
+.genre.badge.rounded-pill.text-bg-warning {
+    background-color: #ffc107; /* Set the default background color */
+    color: #212529; /* Set the default text color */
+}
+
+/* Styling for the badge on hover */
+.genre.badge.rounded-pill.text-bg-warning:hover {
+    background-color: #105cff !important; /* Set the background color on hover */
+    color: #212529 !important; /* Set the text color on hover (you can adjust this as needed) */
+    box-shadow: #212529 0px 4px !important;
 }

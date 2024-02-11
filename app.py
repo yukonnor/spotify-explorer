@@ -63,12 +63,23 @@ def spotify_index():
 @app.route('/playlist-inspector/<playlist_id>')
 def playlist_inspector(playlist_id):
     
+    playlist_name, playlist_url, tracks = get_playlist_data(playlist_id)
+
+    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
+
+# Misc Functions ################################################
+
+# large playlist: 40z0ffEGmOcOjldmXI8ie6
+# test playlist: 0qDBVeMndUkk7fwGfCuTR0
+
+def get_playlist_data(playlist_id):
+
     # QUESTION: Get token each request or get it when I need it (after an hour)?
     access_token = get_token()
-    
+
     playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
     headers = {'Authorization': f'Bearer {access_token}'}  
-    fields =  'id, href, name, limit, tracks(next, offset, total, items(track(id, name, popularity, is_playable, preview_url, type, artists(id, name), album(name, href))))'
+    fields =  'id, href, name, limit, tracks(next, offset, total, items(track(id, name, popularity, duration_ms, is_playable, preview_url, type, artists(id, name), album(name, href))))'
     params = {'fields': fields, 'market': 'US'} 
 
     # TODO: Handle status code != 200 & Private Playlists
@@ -78,20 +89,42 @@ def playlist_inspector(playlist_id):
     # TODO: Set width of columns to be constant arround trunc length
     response = requests.get(playlist_url, headers=headers, params=params)
 
-    playlist_name = response.json().get('name', {})
+    # If we didn't get a 200 status code, break out early
+    if response.status_code != 200:
+        print("Status code: ", response.status_code)
+        print(response.json())
+
+        return None, None, None
+
+    payload = response.json()
+
+    playlist_name = payload.get('name', {})
     playlist_url = f'https://open.spotify.com/playlist/{playlist_id}'
-    items = response.json().get('tracks', {}).get('items', {})
+
+    # If the playlist doesn't have any tracks, break out early
+    if not payload.get('tracks', False):
+        print("No tracks found")
+        print(payload)
+
+        return playlist_name, playlist_url, None
+
+    # if playlist 50 tracks are fewer, we can get the data we need from the response
+    # otherwise we need to make calls to the playlist/tracks API.
+    if payload['tracks']['total'] > 50: 
+        items = get_playlist_tracks(playlist_id)  # TODO: write this function
+    else: 
+        items = payload.get('tracks', {}).get('items', {})
 
     # flatten results into track data
     tracks = [item["track"] for item in items]
 
-    # truncate long track and artist names
+    # process data to our liking:
     for track in tracks:
-        track['artists'][0]['name_trunc'] = truncate_string(track['artists'][0]['name'], 22)
-        track['name_trunc']= truncate_string(track['name'], 28)
-        track['album']['name_trunc']= truncate_string(track['album']['name'], 28)
+        # add duration in minutes & seconds
+        ms = track['duration_ms'] 
+        track['duration']= f"{(ms//1000)//60}:{(ms//1000)%60}" 
 
-    # Get track audiot features and append to tracks
+    # Get track audio features and append to tracks
     track_ids = [track['id'] for track in tracks]
     track_ids_param = ','.join(track_ids)
 
@@ -105,17 +138,21 @@ def playlist_inspector(playlist_id):
     for index, track in enumerate(track_audio_features):
         if track: 
             tracks[index]["danceability"] = track.get("danceability", None)
-            tracks[index]["energy"] = track.get("danceability", None)
+            tracks[index]["energy"] = track.get("energy", None)
 
     # Get artist details (namely genres) and append to tracks
     artist_ids = [track['artists'][0]['id'] for track in tracks]
     aritst_ids_param = ','.join(artist_ids)
+
+    print("Artists IDS param: ", aritst_ids_param)
 
     artists_url = 'https://api.spotify.com/v1/artists'
     params = {'ids': aritst_ids_param} 
 
     response = requests.get(artists_url, headers=headers, params=params)
     artists = response.json().get('artists', {})
+
+    print("Artists API Call Response: ", response.json())
 
     # Add artist metadata to tracks dict
     for index, artist in enumerate(artists):
@@ -124,12 +161,7 @@ def playlist_inspector(playlist_id):
             tracks[index]["artist_popularity"] = artist.get("popularity", None)
             tracks[index]["artist_genres"] = artist.get("genres", None)
 
-    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
-
-# Misc Functions ################################################
-
-def truncate_string(s, max_length):
-    return (s[:max_length] + '...') if len(s) > max_length else s
+    return playlist_name, playlist_url, tracks
 
 
 

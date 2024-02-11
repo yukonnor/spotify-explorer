@@ -33,15 +33,15 @@
                     </audio>
                     {% endif %}
                 </td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name_trunc }}</td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name_trunc }}</td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name_trunc }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name }}</td>
                 <td>{{ track.popularity }} </td>
                 <td>{{ track.danceability }} </td>
                 <td>{{ track.energy }} </td>
                 <td>
                     {% for genre in track.artist_genres %} 
-                    <span class="badge rounded-pill text-bg-warning">{{ genre }}</span>
+                    <a href="/genre-inspector/{{ genre }}"><span class="genre badge rounded-pill text-bg-warning">{{ genre }}</span></a>
                     {% endfor %}
                 </td>
                 <td>{{ track.artist_followers }} </td>
