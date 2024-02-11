@@ -10,6 +10,8 @@ app.config['SECRET_KEY'] = FLASK_SECRET_KEY
 def gen_headers(access_token):
     return {'Authorization': f'Bearer {access_token}'}   
 
+# TODO: Introduce user auth so that they can see their own private playlists and create new playlists on their account
+
 oauth = OAuth(app)
 spotify = oauth.register(
     name='spotify',
@@ -67,12 +69,16 @@ def playlist_inspector(playlist_id):
     
     playlist_name, playlist_url, tracks = get_playlist_data(playlist_id)
 
+    # TODO: show a genre count table (maybe broken down by parent genre vs specific genre)
+
     return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
 
 # Misc Functions ################################################
 
-# large playlist: 40z0ffEGmOcOjldmXI8ie6
 # test playlist: 0qDBVeMndUkk7fwGfCuTR0
+# medium playlist: 7b7WSmGwf101AiXNyrMKEO
+# large playlist: 40z0ffEGmOcOjldmXI8ie6
+# cowpunk: 37i9dQZF1EIgtiaACXv6tQ
 
 def get_playlist_data(playlist_id):
 
@@ -112,6 +118,7 @@ def get_playlist_data(playlist_id):
     # if playlist 50 tracks are fewer, we can get the data we need from the response
     # otherwise we need to make calls to the playlist/tracks API.
     if payload['tracks']['total'] > 50: 
+        print("Playlist has more than 50 tracks...")
         tracks = get_playlist_tracks(playlist_id, access_token) 
     else: 
         items = payload.get('tracks', {}).get('items', {})
@@ -134,10 +141,9 @@ def get_playlist_tracks(playlist_id, access_token):
     playlist_tracks_url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks' 
     fields =  'next, offset, total, items(track(id, name, popularity, duration_ms, is_playable, preview_url, type, artists(id, name), album(name, href)))'
     offset_amt = 0
-    next = None
 
     # Loop until we get 
-    while next != None: 
+    while playlist_tracks_url != None: 
         params = {'fields': fields, 'market': 'US', 'limit': 50, 'offset': {offset_amt}} 
 
         response = requests.get(playlist_tracks_url, headers=gen_headers(access_token), params=params)
@@ -151,17 +157,19 @@ def get_playlist_tracks(playlist_id, access_token):
         response = requests.get(playlist_tracks_url, headers=gen_headers(access_token), params=params)
         payload = response.json()
 
-        items = payload.get('tracks', {}).get('items', {})
-        new_tracks = [item["track"] for item in items] # flatten results into track data
+        items = payload.get('items', {})
 
-        new_tracks = get_track_audio_features(new_tracks, access_token)
-        new_tracks = get_artist_details(new_tracks, access_token)
+        tracks_batch = [item["track"] for item in items] # flatten results into track data
+
+        tracks_batch = get_track_audio_features(tracks_batch, access_token)
+        tracks_batch = get_artist_details(tracks_batch, access_token)
        
         # add new track sublist to the tracks list
-        tracks = tracks + new_tracks
+        tracks = tracks + tracks_batch
 
-        offset_amt += 50
-
+        playlist_tracks_url = response.json().get('next', None)
+        offset_amt += 50  # TODO: not sure we need this as the next URL includes all of the params
+        
         # emergecy breakout:
         if offset_amt > 1000:
             next = None
