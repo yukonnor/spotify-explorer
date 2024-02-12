@@ -98,6 +98,37 @@ def playlist_inspector(playlist_id):
 
     return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
 
+@app.route('/genre-inspector/<genre_title>')
+def genre_inspector(genre_title):
+
+    source = request.args.get('source')
+
+    access_token = get_token()
+
+    if source == 'spotify' or source == 'thesoundsofspotify':
+        playlist_id = get_playlist_by_genre(genre_title, source, access_token)
+    else: 
+        flash("I don't currently support the type of playlist you were looking for.", "warning")
+        return redirect('/')
+
+    playlist_info_payload = get_playlist_info(playlist_id, access_token)
+
+    if not playlist_info_payload:
+        flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")
+        return redirect('/')
+    
+    playlist_name = playlist_info_payload.get('name', {})
+    playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
+    playlist_img_url = None
+
+    if playlist_info_payload["images"]:
+        playlist_img_url = playlist_info_payload["images"][0]["url"]
+
+    tracks = get_playlist_tracks(playlist_id, access_token)
+
+    return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
+
+
 # Misc Functions ################################################
 
 # test playlist: 0qDBVeMndUkk7fwGfCuTR0
@@ -178,6 +209,9 @@ def get_playlist_tracks(playlist_id, access_token):
         ms = track['duration_ms'] 
         track['duration']= f"{(ms//1000)//60}:{(ms//1000)%60}" 
 
+        if track.get('tempo', None): 
+            track['tempo'] = round(track['tempo'])
+
     return tracks
 
 def get_track_audio_features(tracks, access_token):
@@ -195,6 +229,10 @@ def get_track_audio_features(tracks, access_token):
         if track: 
             tracks[index]["danceability"] = track.get("danceability", None)
             tracks[index]["energy"] = track.get("energy", None)
+            tracks[index]["acousticness"] = track.get("acousticness", None)
+            tracks[index]["instrumentalness"] = track.get("instrumentalness", None)
+            tracks[index]["tempo"] = track.get("tempo", None)
+            tracks[index]["positivity"] = track.get("valence", None)
 
     return tracks
 
@@ -217,6 +255,32 @@ def get_artist_details(tracks, access_token):
             tracks[index]["artist_genres"] = artist.get("genres", None)
 
     return tracks
+
+def get_playlist_by_genre(genre_title, source, access_token):
+    """Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API."""
+
+    search_url = "https://api.spotify.com/v1/search"
+
+    if source == 'spotify':
+        query = f'{genre_title} mix'
+    elif source == 'thesoundsofspotify':
+        query = f'the sound of {genre_title}'
+
+    params = {'q':query,'type':'playlist', 'market':'US', 'limit':'10'} 
+
+    response = requests.get(search_url, headers=gen_headers(access_token), params=params)
+    playlist_search_results = response.json().get('playlists', {}).get('items', {})
+
+    for playlist in playlist_search_results:
+        if playlist['owner']['id'] == source:
+            return playlist['id']
+
+    # If no offcial spotify or 'every noise' playlist found, return None 
+    return None
+
+
+
+
 
 def extract_playlist_id(link):
     parts = link.split('/')

@@ -1,0 +1,62 @@
+{# Define the playlist tracks table macro #}
+{% macro playlist_tracks_table(tracks) %}
+    <div class="table-responsive">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                <th scope="col">Preview</th>
+                <th scope="col">Track</th>
+                <th scope="col">Artist</th>
+                <th scope="col">Album</th>
+                <th scope="col">Artist Genres</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Tempo</th>
+                <th scope="col">Track Popularity</th>
+                <th scope="col">Artist Popularity</th>
+                <th scope="col">Artist Followers</th>
+                <th scope="col">Danceability</th>
+                <th scope="col">Energy</th>
+                <th scope="col">Acousticness</th>
+                <th scope="col">Instrumentalness</th>
+                <th scope="col">Positivity</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+            {% for track in tracks %}
+            <tr> 
+                <td>
+                    {% if track.preview_url %}
+                    <button type="button" class="btn btn-success" onclick="playPreview('{{track.preview_url}}')">
+                      <i class="fa-regular fa-circle-play"></i>  
+                    </button>
+                    <!-- Audio element for playback -->
+                    <audio id="audioPlayer" controls style="display: none;">
+                        Your browser does not support the audio element.
+                    </audio>
+                    {% endif %}
+                </td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name }}</td>
+                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name }}</td>
+                <td>
+                    {% for genre in track.artist_genres %} 
+                    <a href="/genre-inspector/{{ genre }}?source=spotify"><span class="genre badge rounded-pill text-bg-warning">{{ genre }}</span></a>
+                    {% endfor %}
+                </td>
+                <td>{{ track.duration }} </td>
+                <td>{{ track.tempo }} </td>
+                <td>{{ track.popularity }} </td>
+                <td>{{ track.artist_popularity }} </td>
+                <td>{{ track.artist_followers }} </td>
+                <td>{{ track.danceability }} </td>
+                <td>{{ track.energy }} </td>
+                <td>{{ track.acousticness }} </td>
+                <td>{{ track.instrumentalness }} </td>
+                <td>{{ track.positivity }} </td>            
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}

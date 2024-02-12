@@ -1,6 +1,6 @@
 {% from 'macros.html' import playlist_tracks_table %}
 {% extends 'base.html' %} 
-{% block title %}Playlist Inspector{% endblock %} 
+{% block title %}{{ genre_title.title() }} Inspector{% endblock %} 
 {% block content %}
 
     <div class="container">
@@ -19,6 +19,15 @@
         <div class="row">
             <div class="col">
                 <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary">Open Playlist in Spotify -></button></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {% if source == 'spotify' %}
+                    <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary">Try EveryNoise's {{ genre_title.title() }} Playlist -></button></a>
+                {% elif source == 'thesoundsofspotify'%}
+                    <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary">Try Spotify's Official {{ genre_title.title() }} Playlist -></button></a>
+                {% endif %}
             </div>
         </div>
         {% if tracks %}
