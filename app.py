@@ -75,12 +75,28 @@ def get_playlist():
 
 @app.route('/playlist-inspector/<playlist_id>')
 def playlist_inspector(playlist_id):
+
+    # QUESTION: Get token each request or get it when I need it (after an hour)?
+    access_token = get_token()
+
+    playlist_info_payload = get_playlist_info(playlist_id, access_token)
+
+    if not playlist_info_payload:
+        flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")
+        return redirect('/')
     
-    playlist_name, playlist_url, tracks = get_playlist_data(playlist_id)
+    playlist_name = playlist_info_payload.get('name', {})
+    playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
+    playlist_img_url = None
+
+    if playlist_info_payload["images"]:
+        playlist_img_url = playlist_info_payload["images"][0]["url"]
+
+    tracks = get_playlist_tracks(playlist_id, access_token)
 
     # TODO: show a genre count table (maybe broken down by parent genre vs specific genre)
 
-    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_url=playlist_url, tracks=tracks)
+    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
 
 # Misc Functions ################################################
 
@@ -89,61 +105,34 @@ def playlist_inspector(playlist_id):
 # large playlist: 40z0ffEGmOcOjldmXI8ie6
 # cowpunk: 37i9dQZF1EIgtiaACXv6tQ
 
-def get_playlist_data(playlist_id):
+def get_playlist_info(playlist_id, access_token):
+    """Get metadata about a playlist from the Spotify API."""
 
-    # QUESTION: Get token each request or get it when I need it (after an hour)?
-    access_token = get_token()
-
-    playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
-    fields =  'id, href, name, limit, tracks(next, offset, total, items(track(id, name, popularity, duration_ms, is_playable, preview_url, type, artists(id, name), album(name, href))))'
-    params = {'fields': fields, 'market': 'US'} 
-
-    # TODO: Handle status code != 200 & Private Playlists
+    # TODO: Handle status code != 200 (Access Token, Private Playlists, ID not found, etc)
     # TODO: Handle large playlists (next query and lists too long to handle)
     # TODO: Handle playlists with episodes instead of tracks (track.type == episode)
     # TODO: Handle tracks with multiple artists
     # TODO: Set width of columns to be constant arround trunc length
+
+    playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
+    fields =  'id, href, name, images'
+    params = {'fields': fields, 'market': 'US'} 
+
     response = requests.get(playlist_url, headers=gen_headers(access_token), params=params)
 
-    # If we didn't get a 200 status code, break out early
     if response.status_code != 200:
         print("Status code: ", response.status_code)
         print(response.json())
 
-        return None, None, None
+        return None
 
     payload = response.json()
 
-    playlist_name = payload.get('name', {})
-    playlist_url = f'https://open.spotify.com/playlist/{playlist_id}'
-
-    # If the playlist doesn't have any tracks, break out early
-    if not payload.get('tracks', False):
-        print("No tracks found")
-        print(payload)
-
-        return playlist_name, playlist_url, None
-
-    # if playlist 50 tracks are fewer, we can get the data we need from the response
-    # otherwise we need to make calls to the playlist/tracks API.
-    if payload['tracks']['total'] > 50: 
-        print("Playlist has more than 50 tracks...")
-        tracks = get_playlist_tracks(playlist_id, access_token) 
-    else: 
-        items = payload.get('tracks', {}).get('items', {})
-        tracks = [item["track"] for item in items] # flatten results into track data
-        tracks = get_track_audio_features(tracks, access_token)  # Get track audio features and append to tracks
-        tracks = get_artist_details(tracks, access_token)
-
-    # process data to our liking:
-    for track in tracks:
-        # add duration in minutes & seconds
-        ms = track['duration_ms'] 
-        track['duration']= f"{(ms//1000)//60}:{(ms//1000)%60}" 
-
-    return playlist_name, playlist_url, tracks
+    return payload
 
 def get_playlist_tracks(playlist_id, access_token):
+    """Get metadata about playlist tracks from the Spotify API.
+       Append audio features and artist genre & popularity."""
 
     tracks = []
 
@@ -182,6 +171,12 @@ def get_playlist_tracks(playlist_id, access_token):
         # emergecy breakout:
         if offset_amt > 1000:
             next = None
+
+     # process data to our liking:
+    for track in tracks:
+        # add duration in minutes & seconds
+        ms = track['duration_ms'] 
+        track['duration']= f"{(ms//1000)//60}:{(ms//1000)%60}" 
 
     return tracks
 

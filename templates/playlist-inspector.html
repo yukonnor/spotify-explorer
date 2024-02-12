@@ -3,8 +3,23 @@
 {% block content %}
 
     <div class="container">
-        <h1>{{ playlist_name }}</h1>
-        <p><a href="{{playlist_url}}" target="_blank">link -></a></p>
+        <div class="row align-items-end">
+            <div class="col-3">
+                {% if playlist_img_url %}
+                <img class="playlist-img img-responsive" width="100%" src="{{playlist_img_url}}" alt="Image (usualy album art) for the playlist">
+                {% else %}
+                <img class="playlist-img img-responsive" width="100%" src="{{playlist_img_url}}" alt="Image (usualy album art) for the playlist">
+                {% endif %}
+            </div>
+            <div class="col-9">
+                <h1>{{ playlist_name }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary">Open Playlist in Spotify -></button></a>
+            </div>
+        </div>
         <div class="table-responsive">
         <table class="table table-dark table-hover">
             <thead>
@@ -22,11 +37,12 @@
                 </tr>
             </thead>
             <tbody>
+            {% if tracks %}
             {% for track in tracks %}
             <tr> 
                 <td>
                     {% if track.preview_url %}
-                    <button onclick="playPreview('{{track.preview_url}}')">Play Preview</button>
+                    <button type="button" class="btn btn-success" onclick="playPreview('{{track.preview_url}}')">Play Preview</button>
                     <!-- Audio element for playback -->
                     <audio id="audioPlayer" controls style="display: none;">
                         Your browser does not support the audio element.
@@ -48,6 +64,9 @@
                 <td>{{ track.artist_popularity }} </td>
             </tr>
             {% endfor %}
+            {% else %}
+            <p>No tracks found on that playlist :/</p>
+            {% endif %}
             </tbody>
         </table>
         </div>
