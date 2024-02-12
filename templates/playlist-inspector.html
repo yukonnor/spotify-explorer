@@ -13,10 +13,10 @@
                 <th scope="col">Track</th>
                 <th scope="col">Artist</th>
                 <th scope="col">Album</th>
+                <th scope="col">Artist Genres</th>
                 <th scope="col">Track Popularity</th>
                 <th scope="col">Danceability</th>
                 <th scope="col">Energy</th>
-                <th scope="col">Artist Genres</th>
                 <th scope="col">Artist Followers</th>
                 <th scope="col">Artist Popularity</th>
                 </tr>
@@ -36,14 +36,14 @@
                 <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name }}</td>
                 <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name }}</td>
                 <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name }}</td>
-                <td>{{ track.popularity }} </td>
-                <td>{{ track.danceability }} </td>
-                <td>{{ track.energy }} </td>
                 <td>
                     {% for genre in track.artist_genres %} 
                     <a href="/genre-inspector/{{ genre }}"><span class="genre badge rounded-pill text-bg-warning">{{ genre }}</span></a>
                     {% endfor %}
                 </td>
+                <td>{{ track.popularity }} </td>
+                <td>{{ track.danceability }} </td>
+                <td>{{ track.energy }} </td>
                 <td>{{ track.artist_followers }} </td>
                 <td>{{ track.artist_popularity }} </td>
             </tr>

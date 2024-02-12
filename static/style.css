@@ -3,9 +3,11 @@ td {
     white-space: nowrap;
 }
 
-/* Max width for Track and Album Name */
+/* Max width for Track, Arists and Album Name */
 td:nth-child(2),
 th:nth-child(2),
+td:nth-child(3),
+th:nth-child(3),
 td:nth-child(4),
 th:nth-child(4) {
     max-width: 200px;
@@ -13,21 +15,11 @@ th:nth-child(4) {
     text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
 }
 
-/* Max width for Arists Name */
-td:nth-child(3),
-th:nth-child(3),
-td:nth-child(3),
-th:nth-child(3) {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 /* Max width for Genres */
-td:nth-child(8),
-th:nth-child(8),
-td:nth-child(8),
-th:nth-child(8) {
+td:nth-child(5),
+th:nth-child(5),
+td:nth-child(5),
+th:nth-child(5) {
     min-width: 380px;
     max-width: 380px;
     white-space: normal;

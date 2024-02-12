@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template, redirect, flash, session
 from authlib.integrations.flask_client import OAuth
 from config import FLASK_SECRET_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 import requests
@@ -49,20 +49,29 @@ def get_token():
 
 ################################################
 
-@app.route('/test-connection')
-def spotify_index():
-    
-    access_token = get_token()
+@app.route('/')
+def home():
+    """Render the home page."""
+    return render_template('home.html')
 
-    # Use the access token to make API requests
-    categories_url = 'https://api.spotify.com/v1/browse/categories'
-    params = {'limit': 20, 'offset': 0} 
+@app.route('/genres')
+def genre_index():
+    """Render the genre index page."""
+    return render_template('genre-index.html')
 
-    # TODO: Handle status code != 200
-    categories_response = requests.get(categories_url, headers=gen_headers(access_token), params=params)
-    categories = categories_response.json().get('categories', {}).get('items', [])
+@app.route('/get-playlist')
+def get_playlist():
+    """Process the 'get playlist' form, redirecting user to the playlist inspector page for the playlist."""
 
-    return render_template('category-index.html', categories=categories)
+    playlist_link = request.args.get('playlistLink')
+
+    if not playlist_link or not playlist_link.startswith('https://open.spotify.com/playlist/'):
+        flash("Looks like the playlist link wasn't in the expected format. Please try again.", "warning")
+        return redirect('/')
+
+    playlist_id = extract_playlist_id(playlist_link)
+
+    return redirect(f'/playlist-inspector/{playlist_id}')
 
 @app.route('/playlist-inspector/<playlist_id>')
 def playlist_inspector(playlist_id):
@@ -213,6 +222,17 @@ def get_artist_details(tracks, access_token):
             tracks[index]["artist_genres"] = artist.get("genres", None)
 
     return tracks
+
+def extract_playlist_id(link):
+    parts = link.split('/')
+
+    # Find the index of 'playlist' in the parts list
+    playlist_index = parts.index('playlist')
+
+    # Extract the playlist ID from the next part
+    playlist_id = parts[playlist_index + 1].split('?')[0]
+
+    return playlist_id
 
 # Run ################################################
 
