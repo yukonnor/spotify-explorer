@@ -1,43 +1,52 @@
 # Capstone Project One | Spotify Playlist Inspector & Genre Discovery
 
 ## API Selction
+
 Spotify Web API: https://developer.spotify.com/documentation/web-api
 
-This API uses OAuth2.0, making it possible for Spotify users to authenticate their Spotify accounts with this application, given them access to their private playlists and making it possible to create playlists for their account. 
+This API uses OAuth2.0, making it possible for Spotify users to authenticate their Spotify accounts with this application, given them access to their private playlists and making it possible to create playlists for their account.
 
 ## DB Schema
-* **Users**
-   * id (PK)
-   * display_name (string)
-* **User Genres**
-   * id (PK)
-   * user_id (FK --> users.id)
-   * genre_id (FK --> genres.id)
-   * is_favorite (boolean)
-   * listened_to (boolean)
-   * TBD: not_interested (boolean)
-* **Genres**
-  * id (PK)
-  * title
-  * spotify_playlist_id (FK --> playlists.id)
-  * en_playlist_id (FK --> playlists.id)
-* **Genre Relationships**
-  * parent_id (PK, FK --> genres.id)
-  * child_id (PK, FK --> genres.id)
- 
-_Maybe:_
-* **User Playlists**
-   * id (PK)
-   * user_id (FK --> users.id)
-   * playlist_id (FK --> playlists.id)
-* **Playlists**
-   * id (PK, Spotify's playlist id)
-   * created_at (datetime)
-   * updated_at (datetime)
-   * last_accessed_ad (datetime)
-   * data (cache of playlist data to avoid API request)
-     
 
+-   **Users**
+    -   id (PK)
+    -   display_name (string)
+-   **User Genres**
+    -   id (PK)
+    -   user_id (FK --> users.id)
+    -   genre_id (FK --> genres.id)
+    -   is_favorite (boolean)
+    -   listened_to (boolean)
+    -   TBD: not_interested (boolean)
+-   **Genres**
+    -   id (PK)
+    -   title
+    -   is_parent_category (boolean)
+    -   is_collection (boolean)
+    -   spotify_playlist_id (FK --> playlists.id)
+    -   en_playlist_id (FK --> playlists.id)
+    -   en_energy_score (number)
+    -   en_dynamic_variation_score (number)
+    -   en_instrumentalness_score (number)
+    -   en_organic_mechanical_score (number)
+    -   en_dense_spiky_score (number)
+    -   en_popularity_score (number)
+-   **Genre Relationships**
+    -   parent_id (PK, FK --> genres.id)
+    -   child_id (PK, FK --> genres.id)
+
+_Maybe:_
+
+-   **User Playlists**
+    -   id (PK)
+    -   user_id (FK --> users.id)
+    -   playlist_id (FK --> playlists.id)
+-   **Playlists**
+    -   id (PK, Spotify's playlist id)
+    -   created_at (datetime)
+    -   updated_at (datetime)
+    -   last_accessed_ad (datetime)
+    -   data (cache of playlist data to avoid API request)
 
 ## Guidelines
 
