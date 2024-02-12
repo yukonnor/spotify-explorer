@@ -37,3 +37,9 @@ th:nth-child(5) {
     color: #212529 !important; /* Set the text color on hover (you can adjust this as needed) */
     box-shadow: #212529 0px 4px !important;
 }
+
+.playlist-icon {
+    width: 100%;
+    transform: scale(1.5, 1);
+    color: rgb(0, 195, 0);
+}

@@ -30,7 +30,10 @@ spotify = oauth.register(
 # QUESTION: Can I make a separate dev account using spotify free platform? I probably shouldn't use my personal acct.
 
 def get_token():
-    # Fetch data from Spotify API using client credentials
+    """ Fetch data from Spotify API using client credentials """
+
+    print("Getting access token...")
+    
     token_request_params = {
         'grant_type': 'client_credentials',
         'client_id': SPOTIFY_CLIENT_ID,
@@ -39,6 +42,12 @@ def get_token():
 
     # Make the request and obtain the response
     response = requests.post(spotify.access_token_url, data=token_request_params)
+
+    if response.status_code != 200:
+        print("Status code: ", response.status_code)
+        print(response.json())
+
+        return None
 
     response_data = response.json()
 
@@ -95,11 +104,14 @@ def playlist_inspector(playlist_id):
     tracks = get_playlist_tracks(playlist_id, access_token)
 
     # TODO: show a genre count table (maybe broken down by parent genre vs specific genre)
+    # TODO: implement Bootstrap table for sorting and sticky headers
 
     return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
 
 @app.route('/genre-inspector/<genre_title>')
 def genre_inspector(genre_title):
+
+    print(f"Generating genre inspector page for {genre_title}...")
 
     source = request.args.get('source')
 
@@ -259,6 +271,8 @@ def get_artist_details(tracks, access_token):
 def get_playlist_by_genre(genre_title, source, access_token):
     """Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API."""
 
+    print("Looking for genre playlists for genre: ", genre_title)
+
     search_url = "https://api.spotify.com/v1/search"
 
     if source == 'spotify':
@@ -272,7 +286,9 @@ def get_playlist_by_genre(genre_title, source, access_token):
     playlist_search_results = response.json().get('playlists', {}).get('items', {})
 
     for playlist in playlist_search_results:
-        if playlist['owner']['id'] == source:
+        owner_id = playlist['owner']['id']
+        playlist_title = playlist['name']
+        if owner_id == source and genre_title in playlist_title.lower():
             return playlist['id']
 
     # If no offcial spotify or 'every noise' playlist found, return None 

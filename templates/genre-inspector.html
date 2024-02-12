@@ -4,7 +4,7 @@
 {% block content %}
 
     <div class="container">
-        <div class="row align-items-end">
+        <div class="row align-items-center mt-4 mb-4">
             <div class="col-3">
                 {% if playlist_img_url %}
                 <img class="playlist-img img-responsive" width="100%" src="{{playlist_img_url}}" alt="Image (usualy album art) for the playlist">
@@ -13,23 +13,22 @@
                 {% endif %}
             </div>
             <div class="col-9">
-                <h1>{{ playlist_name }}</h1>
-            </div>
+                <div class="row">
+                    <h1 class="display-2">{{ playlist_name }}</h1>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
+                        {% if source == 'spotify' %}
+                            <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                        {% elif source == 'thesoundsofspotify'%}
+                            <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div> 
         </div>
-        <div class="row">
-            <div class="col">
-                <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary">Open Playlist in Spotify -></button></a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                {% if source == 'spotify' %}
-                    <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary">Try EveryNoise's {{ genre_title.title() }} Playlist -></button></a>
-                {% elif source == 'thesoundsofspotify'%}
-                    <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary">Try Spotify's Official {{ genre_title.title() }} Playlist -></button></a>
-                {% endif %}
-            </div>
-        </div>
+   
         {% if tracks %}
             {{ playlist_tracks_table(tracks) }}
         {% else %}
