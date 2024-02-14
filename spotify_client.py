@@ -12,10 +12,8 @@ import requests
 class SpotifyClient:
     def __init__(self):
         
-        self.access_token = 'tbd'
+        self.access_token = 'tbd'   # QUESTION: Is this needed? 
         self.get_token()
-        self.headers = self.gen_headers()
-
 
     def get_token(self):
         """ Get API token used to get data from Spotify using client credentials """
@@ -45,8 +43,7 @@ class SpotifyClient:
         access_token = response_data['access_token']
 
         self.access_token = access_token
-
-        # Question: Should I also return the access token here so that I can set it in __init__? 
+        self.headers = self.gen_headers()
 
     def gen_headers(self):
         return {'Authorization': f'Bearer {self.access_token}'}  
@@ -65,16 +62,20 @@ class SpotifyClient:
         params = {'fields': fields, 'market': 'US'} 
 
         response = requests.get(playlist_url, headers=self.headers, params=params)
+   
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(playlist_url, headers=self.headers, params=params)
 
-        if response.status_code != 200:
-            print("Status code: ", response.status_code)
-            print(response.json())
-
-            return None
-
-        payload = response.json()
-
-        return payload
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()        
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+        
+        return response.json() if response.status_code in [200, 201, 202, 204] else None
 
     def get_playlist_tracks(self, playlist_id):
         """Get metadata about playlist tracks from the Spotify API.
@@ -92,18 +93,26 @@ class SpotifyClient:
 
             response = requests.get(playlist_tracks_url, headers=self.headers, params=params)
 
-            # If we didn't get a 200 status code, break out early
-            if response.status_code != 200:
-                print("Status code: ", response.status_code)
-                print(response.json())
-                return None
+            if self.should_retry(response):
+                # get new toke and try request again
+                self.get_token()
+                response = requests.get(playlist_tracks_url, headers=self.headers, params=params)
 
-            response = requests.get(playlist_tracks_url, headers=self.headers, params=params)
+                # if fails again, back out
+                if response.status_code not in [200, 201, 202, 204]:
+                    self.handle_error_status_code()   
+                    return None     
+                
+            elif response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code
+                return None
+            
             payload = response.json()
 
             items = payload.get('items', {})
 
-            tracks_batch = [item["track"] for item in items] # flatten results into track data
+            # flatten results into track data
+            tracks_batch = [item["track"] for item in items] 
 
             # clean up the data to our liking
             for track in tracks_batch:
@@ -140,6 +149,21 @@ class SpotifyClient:
         params = {'ids': track_ids_param} 
 
         response = requests.get(track_audio_features_url, headers=self.headers, params=params)
+
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(track_audio_features_url, headers=self.headers, params=params)
+
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()   
+                return None     
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+            return None
+
         track_audio_features = response.json().get('audio_features', {})
         
         # Add audio features to tracks dict
@@ -163,6 +187,21 @@ class SpotifyClient:
         params = {'ids': aritst_ids_param} 
 
         response = requests.get(artists_url, headers=self.headers, params=params)
+
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(artists_url, headers=self.headers, params=params)
+
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()   
+                return None     
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+            return None
+
         artists = response.json().get('artists', {})
 
         # Add artist metadata to tracks dict
@@ -189,6 +228,23 @@ class SpotifyClient:
         params = {'q':query,'type':'playlist', 'market':'US', 'limit':'10'} 
 
         response = requests.get(search_url, headers=self.headers, params=params)
+
+        # Check if we got an error
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(search_url, headers=self.headers, params=params)
+
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()   
+                return None     
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+            return None
+
+        # Got a successful response. Continue...
         playlist_search_results = response.json().get('playlists', {}).get('items', {})
 
         for playlist in playlist_search_results:
@@ -199,6 +255,14 @@ class SpotifyClient:
 
         # If no offcial spotify or 'every noise' playlist found, return None 
         return None 
+    
+    def should_retry(self, response):
+        return response.status_code == 401 and response.json()['error']['message'] == "The access token expired"
+    
+    def handle_error_status_code(self, response):
+        print("Status code: ", response.status_code)
+        print(response.json())
+
         
 
 def convert_ms_to_mins(ms):
