@@ -113,6 +113,7 @@ def genre_inspector(genre_title):
 
     print(f"Generating genre inspector page for {genre_title}...")
 
+    # Get playlist source (owner type) from query string
     source = request.args.get('source')
 
     access_token = get_token()
@@ -126,7 +127,8 @@ def genre_inspector(genre_title):
     playlist_info_payload = get_playlist_info(playlist_id, access_token)
 
     if not playlist_info_payload:
-        flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")
+        # Question: What is a better way to handle this? How can I get status code (or other error details) from get_playlist_info() to include in flash message?
+        flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")  
         return redirect('/')
     
     playlist_name = playlist_info_payload.get('name', {})
@@ -218,11 +220,7 @@ def get_playlist_tracks(playlist_id, access_token):
      # process data to our liking:
     for track in tracks:
         # add duration in minutes & seconds
-        ms = track['duration_ms'] 
-        track['duration']= f"{(ms//1000)//60}:{(ms//1000)%60}" 
-
-        if track.get('tempo', None): 
-            track['tempo'] = round(track['tempo'])
+        track['duration']= convert_ms_to_mins(track['duration_ms'])
 
     return tracks
 
@@ -239,12 +237,12 @@ def get_track_audio_features(tracks, access_token):
     # Add audio features to tracks dict
     for index, track in enumerate(track_audio_features):
         if track: 
-            tracks[index]["danceability"] = track.get("danceability", None)
-            tracks[index]["energy"] = track.get("energy", None)
-            tracks[index]["acousticness"] = track.get("acousticness", None)
-            tracks[index]["instrumentalness"] = track.get("instrumentalness", None)
-            tracks[index]["tempo"] = track.get("tempo", None)
-            tracks[index]["positivity"] = track.get("valence", None)
+            tracks[index]["danceability"] = round(track.get("danceability", None), 3) # float: 0.0 - 1.0
+            tracks[index]["energy"] = round(track.get("energy", None), 3) # float: 0.0 - 1.0
+            tracks[index]["acousticness"] = round(track.get("acousticness", None), 3) # float: 0.0 - 1.0
+            tracks[index]["instrumentalness"] = round(track.get("instrumentalness", None), 3) # float: 0.0 - 1.0
+            tracks[index]["tempo"] = round(track.get("tempo", None))
+            tracks[index]["positivity"] = round(track.get("valence", None), 3)  # float: 0.0 - 1.0
 
     return tracks
 
@@ -295,9 +293,6 @@ def get_playlist_by_genre(genre_title, source, access_token):
     return None
 
 
-
-
-
 def extract_playlist_id(link):
     parts = link.split('/')
 
@@ -308,6 +303,14 @@ def extract_playlist_id(link):
     playlist_id = parts[playlist_index + 1].split('?')[0]
 
     return playlist_id
+
+def convert_ms_to_mins(ms):
+    min = (ms//1000)//60
+    sec = (ms//1000)%60
+    if sec >=0 and sec < 10:
+        sec = f'0{sec}'
+
+    return f'{min}:{sec}'
 
 # Run ################################################
 

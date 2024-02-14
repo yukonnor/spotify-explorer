@@ -1,24 +1,27 @@
 {# Define the playlist tracks table macro #}
 {% macro playlist_tracks_table(tracks) %}
     <div class="table-responsive">
-        <table class="table table-dark table-hover">
+        <table class="table table-dark table-hover"
+               data-toggle="table"
+               data-pagination="true"
+               data-search="true">
             <thead>
                 <tr>
-                <th scope="col">Preview</th>
-                <th scope="col">Track</th>
-                <th scope="col">Artist</th>
-                <th scope="col">Album</th>
-                <th scope="col">Artist Genres</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Tempo</th>
-                <th scope="col">Track Popularity</th>
-                <th scope="col">Artist Popularity</th>
-                <th scope="col">Artist Followers</th>
-                <th scope="col">Danceability</th>
-                <th scope="col">Energy</th>
-                <th scope="col">Acousticness</th>
-                <th scope="col">Instrumentalness</th>
-                <th scope="col">Positivity</th>
+                <th scope="col" data-field="id">Preview</th>
+                <th scope="col" data-sortable="true" data-field="track">Track</th>
+                <th scope="col" data-sortable="true" data-field="artist">Artist</th>
+                <th scope="col" data-sortable="true" data-field="album">Album</th>
+                <th scope="col" data-field="genres">Artist Genres</th>
+                <th scope="col" data-sortable="true" data-field="duration">Duration</th>
+                <th scope="col" data-sortable="true" data-field="tempo">Tempo</th>
+                <th scope="col" data-sortable="true" data-field="t-popularity">Track Popularity</th>
+                <th scope="col" data-sortable="true" data-field="a-popularity">Artist Popularity</th>
+                <th scope="col" data-sortable="true" data-field="followers">Artist Followers</th>
+                <th scope="col" data-sortable="true" data-field="dance-val">Danceability</th>
+                <th scope="col" data-sortable="true" data-field="engery-val">Energy</th>
+                <th scope="col" data-sortable="true" data-field="pos-val">Positivity</th>
+                <th scope="col" data-sortable="true" data-field="acoust-val">Acoustic?</th>
+                <th scope="col" data-sortable="true" data-field="instr-val">Instrumental?</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,13 +30,9 @@
             <tr> 
                 <td>
                     {% if track.preview_url %}
-                    <button type="button" class="btn btn-success" onclick="playPreview('{{track.preview_url}}')">
+                    <button type="button" class="btn btn-success" onclick="playPreview('{{track.preview_url}}', this)">
                       <i class="fa-regular fa-circle-play"></i>  
                     </button>
-                    <!-- Audio element for playback -->
-                    <audio id="audioPlayer" controls style="display: none;">
-                        Your browser does not support the audio element.
-                    </audio>
                     {% endif %}
                 </td>
                 <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name }}</td>
@@ -58,5 +57,10 @@
             {% endfor %}
             </tbody>
         </table>
+        
+        <!-- Audio element for playback -->
+        <audio id="audioPlayer" controls style="display: none;">
+            Your browser does not support the audio element.
+        </audio>
     </div>
 {% endmacro %}

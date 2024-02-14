@@ -14,15 +14,15 @@
             </div>
             <div class="col-9">
                 <div class="row">
-                    <h1 class="display-2">{{ playlist_name }}</h1>
+                    <h1 class="display-4">{{ playlist_name }}</h1>
                 </div>
                 <div class="row">
                     <div class="col">
                         <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
                         {% if source == 'spotify' %}
-                            <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                            <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary mb-2">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
                         {% elif source == 'thesoundsofspotify'%}
-                            <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                            <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary mb-2">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
                         {% endif %}
                     </div>
                 </div>
