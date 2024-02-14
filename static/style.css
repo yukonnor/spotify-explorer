@@ -29,6 +29,7 @@ th:nth-child(5) {
 .genre.badge.rounded-pill.text-bg-warning {
     background-color: #ffc107; /* Set the default background color */
     color: #212529; /* Set the default text color */
+    margin-right: 4px;
 }
 
 /* Styling for the badge on hover */

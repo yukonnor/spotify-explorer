@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash, session
+from flask import Flask, request, render_template, redirect, flash, session, jsonify
 from authlib.integrations.flask_client import OAuth
 from config import FLASK_SECRET_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 import requests
@@ -84,8 +84,9 @@ def get_playlist():
 
 @app.route('/playlist-inspector/<playlist_id>')
 def playlist_inspector(playlist_id):
+    """Render the playlist inspector page. The track data used to populate the playlist tracks data will be a separate AJAX request."""
 
-    # QUESTION: Get token each request or get it when I need it (after an hour)?
+    # QUESTION: Get token each request or get it when I need it (after an hour)? Store as global variable so that other functions can reference?
     access_token = get_token()
 
     playlist_info_payload = get_playlist_info(playlist_id, access_token)
@@ -94,19 +95,27 @@ def playlist_inspector(playlist_id):
         flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")
         return redirect('/')
     
-    playlist_name = playlist_info_payload.get('name', {})
+    # set playlist link
     playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
-    playlist_img_url = None
-
-    if playlist_info_payload["images"]:
-        playlist_img_url = playlist_info_payload["images"][0]["url"]
-
-    tracks = get_playlist_tracks(playlist_id, access_token)
 
     # TODO: show a genre count table (maybe broken down by parent genre vs specific genre)
     # TODO: implement Bootstrap table for sorting and sticky headers
 
-    return render_template('playlist-inspector.html', playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
+    return render_template('playlist-inspector.html', playlist=playlist_info_payload, playlist_link=playlist_link)
+
+@app.route('/get-playlist-tracks/<playlist_id>')
+def playlist_tracks(playlist_id):
+    """Provide playlist track data to the bootstrap-table's AJAX request."""
+
+    # QUESTION: Get token each request or get it when I need it (after an hour)?
+    access_token = get_token()
+
+    tracks = get_playlist_tracks(playlist_id, access_token)
+
+    print(tracks)
+
+    return ( jsonify(tracks) )
+
 
 @app.route('/genre-inspector/<genre_title>')
 def genre_inspector(genre_title):
@@ -131,16 +140,9 @@ def genre_inspector(genre_title):
         flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")  
         return redirect('/')
     
-    playlist_name = playlist_info_payload.get('name', {})
     playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
-    playlist_img_url = None
 
-    if playlist_info_payload["images"]:
-        playlist_img_url = playlist_info_payload["images"][0]["url"]
-
-    tracks = get_playlist_tracks(playlist_id, access_token)
-
-    return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist_name=playlist_name, playlist_link=playlist_link, playlist_img_url=playlist_img_url, tracks=tracks)
+    return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist=playlist_info_payload, playlist_link=playlist_link)
 
 
 # Misc Functions ################################################
@@ -204,6 +206,12 @@ def get_playlist_tracks(playlist_id, access_token):
 
         tracks_batch = [item["track"] for item in items] # flatten results into track data
 
+        # clean up the data to our liking
+        for track in tracks_batch:
+            track['album'] = track['album']['name'] 
+            track['artist_name'] = track['artists'][0]['name'] 
+            track['artist_id'] = track['artists'][0]['id'] 
+
         tracks_batch = get_track_audio_features(tracks_batch, access_token)
         tracks_batch = get_artist_details(tracks_batch, access_token)
        
@@ -221,6 +229,7 @@ def get_playlist_tracks(playlist_id, access_token):
     for track in tracks:
         # add duration in minutes & seconds
         track['duration']= convert_ms_to_mins(track['duration_ms'])
+        
 
     return tracks
 
@@ -248,7 +257,7 @@ def get_track_audio_features(tracks, access_token):
 
 def get_artist_details(tracks, access_token):
     """ Get artist details (namely popularity & genres) and append to tracks """
-    artist_ids = [track['artists'][0]['id'] for track in tracks]
+    artist_ids = [track.get('artist_id', None) for track in tracks]
     aritst_ids_param = ','.join(artist_ids)
 
     artists_url = 'https://api.spotify.com/v1/artists'

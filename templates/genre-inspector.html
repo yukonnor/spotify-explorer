@@ -6,15 +6,13 @@
     <div class="container">
         <div class="row align-items-center mt-4 mb-4">
             <div class="col-3">
-                {% if playlist_img_url %}
-                <img class="playlist-img img-responsive" width="100%" src="{{playlist_img_url}}" alt="Image (usualy album art) for the playlist">
-                {% else %}
-                <<i class="fa-regular fa-volume-high playlist-icon"></i>
+                {% if playlist.images %}
+                <img class="playlist-img img-responsive" width="100%" src="{{playlist.images[0].url}}" alt="Image (usualy album art) for the playlist">
                 {% endif %}
             </div>
             <div class="col-9">
                 <div class="row">
-                    <h1 class="display-4">{{ playlist_name }}</h1>
+                    <h1 class="display-4">{{ playlist.name }}</h1>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -28,12 +26,8 @@
                 </div>
             </div> 
         </div>
-   
-        {% if tracks %}
-            {{ playlist_tracks_table(tracks) }}
-        {% else %}
-        <p>No tracks found on that playlist :/</p>
-        {% endif %}
+            
+        {{ playlist_tracks_table(playlist.id) }}
 
     </div>
 

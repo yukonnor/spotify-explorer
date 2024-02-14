@@ -1,61 +1,34 @@
 {# Define the playlist tracks table macro #}
-{% macro playlist_tracks_table(tracks) %}
+{% macro playlist_tracks_table(playlist_id) %}
     <div class="table-responsive">
         <table class="table table-dark table-hover"
                data-toggle="table"
                data-pagination="true"
-               data-search="true">
+               data-side-pagination="client"
+               data-url="/get-playlist-tracks/{{ playlist_id }}"  
+               data-cache="true"
+               data-search="true"
+               data-pagination-parts = "['pageInfo', 'pageList']"
+               data-page-size="50">
             <thead>
                 <tr>
-                <th scope="col" data-field="id">Preview</th>
-                <th scope="col" data-sortable="true" data-field="track">Track</th>
-                <th scope="col" data-sortable="true" data-field="artist">Artist</th>
+                <th scope="col" data-field="preview_url" data-formatter="trackPreviewFormatter">Preview</th>
+                <th scope="col" data-sortable="true" data-field="name">Track</th>
+                <th scope="col" data-sortable="true" data-field="artist_name">Artist</th>
                 <th scope="col" data-sortable="true" data-field="album">Album</th>
-                <th scope="col" data-field="genres">Artist Genres</th>
+                <th scope="col" data-field="artist_genres" data-formatter="artistGenresFormatter">Artist Genres</th>
                 <th scope="col" data-sortable="true" data-field="duration">Duration</th>
                 <th scope="col" data-sortable="true" data-field="tempo">Tempo</th>
-                <th scope="col" data-sortable="true" data-field="t-popularity">Track Popularity</th>
-                <th scope="col" data-sortable="true" data-field="a-popularity">Artist Popularity</th>
-                <th scope="col" data-sortable="true" data-field="followers">Artist Followers</th>
-                <th scope="col" data-sortable="true" data-field="dance-val">Danceability</th>
-                <th scope="col" data-sortable="true" data-field="engery-val">Energy</th>
-                <th scope="col" data-sortable="true" data-field="pos-val">Positivity</th>
-                <th scope="col" data-sortable="true" data-field="acoust-val">Acoustic?</th>
-                <th scope="col" data-sortable="true" data-field="instr-val">Instrumental?</th>
+                <th scope="col" data-sortable="true" data-field="popularity">Track Popularity</th>
+                <th scope="col" data-sortable="true" data-field="artist_popularity">Artist Popularity</th>
+                <th scope="col" data-sortable="true" data-field="artist_followers">Artist Followers</th>
+                <th scope="col" data-sortable="true" data-field="danceability">Danceability</th>
+                <th scope="col" data-sortable="true" data-field="energy">Energy</th>
+                <th scope="col" data-sortable="true" data-field="positivity">Positivity</th>
+                <th scope="col" data-sortable="true" data-field="acousticness">Acoustic?</th>
+                <th scope="col" data-sortable="true" data-field="instrumentalness">Instrumental?</th>
                 </tr>
             </thead>
-            <tbody>
-            
-            {% for track in tracks %}
-            <tr> 
-                <td>
-                    {% if track.preview_url %}
-                    <button type="button" class="btn btn-success" onclick="playPreview('{{track.preview_url}}', this)">
-                      <i class="fa-regular fa-circle-play"></i>  
-                    </button>
-                    {% endif %}
-                </td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.name }}">{{ track.name }}</td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.artists[0].name }}">{{ track.artists[0].name }}</td>
-                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ track.album.name }}">{{ track.album.name }}</td>
-                <td>
-                    {% for genre in track.artist_genres %} 
-                    <a href="/genre-inspector/{{ genre }}?source=spotify"><span class="genre badge rounded-pill text-bg-warning">{{ genre }}</span></a>
-                    {% endfor %}
-                </td>
-                <td>{{ track.duration }} </td>
-                <td>{{ track.tempo }} </td>
-                <td>{{ track.popularity }} </td>
-                <td>{{ track.artist_popularity }} </td>
-                <td>{{ track.artist_followers }} </td>
-                <td>{{ track.danceability }} </td>
-                <td>{{ track.energy }} </td>
-                <td>{{ track.acousticness }} </td>
-                <td>{{ track.instrumentalness }} </td>
-                <td>{{ track.positivity }} </td>            
-            </tr>
-            {% endfor %}
-            </tbody>
         </table>
         
         <!-- Audio element for playback -->

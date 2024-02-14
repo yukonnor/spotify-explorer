@@ -1,3 +1,28 @@
+/* Bootstrap Table helpers */
+
+function trackPreviewFormatter(value, row) {
+    // value is the track audio preview url
+    if (value) {
+        return `<button type="button" class="btn btn-success" onclick="playPreview('${value}', this)">
+                <i class="fa-regular fa-circle-play"></i></button>`;
+    } else {
+        return "";
+    }
+}
+
+function artistGenresFormatter(value, row) {
+    // value is a list a genres associated with the artist
+    if (value) {
+        let genresHtml = "";
+        for (genre of value) {
+            genresHtml += `<a href="/genre-inspector/${genre}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">${genre}</span></a>`;
+        }
+        return genresHtml;
+    } else {
+        return "";
+    }
+}
+
 /* Play track preview audio */
 var audioPlayer = document.getElementById("audioPlayer");
 var currentlyPlayingButton = null;
