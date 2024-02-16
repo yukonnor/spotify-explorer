@@ -71,7 +71,10 @@ def create_app(db_name, testing=False, developing=False):
 
         form = SignUpForm()
 
-        # TODO: Redirect user if already logged in.
+        # Redirect if logged in
+        if g.user:
+            flash(f"You're already logged in :)", "primary")
+            return redirect(f"/users/{g.user.id}")
 
         if form.validate_on_submit():
             try:
@@ -96,9 +99,13 @@ def create_app(db_name, testing=False, developing=False):
     @app.route('/login', methods=["GET", "POST"])
     def login():
         """Handle user login."""
-
-        # TODO: Redirect user if already logged in.
+        
         # TODO: Add forgot pw flow.
+
+        # Redirect user if already logged in.
+        if g.user:
+            flash(f"You're already logged in :)", "primary")
+            return redirect(f"/users/{g.user.id}")
 
         form = LoginForm()
 
@@ -118,6 +125,7 @@ def create_app(db_name, testing=False, developing=False):
 
 
     @app.route('/logout')
+    @login_required
     def logout():
         """Handle logout of user."""
 
@@ -132,7 +140,7 @@ def create_app(db_name, testing=False, developing=False):
         """Show the user's profile page.
            At this time, users can only see their own profile page."""
         
-        if session.get(CURR_USER_KEY) and session[CURR_USER_KEY] != user_id:
+        if g.user and session[CURR_USER_KEY] != user_id:
             flash("Sorry. You can only view your own profile at this time.", "warning")
             return redirect(f"/users/{session[CURR_USER_KEY]}")
 
