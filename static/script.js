@@ -25,6 +25,10 @@ function artistGenresFormatter(value, row) {
     }
 }
 
+function loadingTemplate(message) {
+    return '<div class="mt-5"><i class="fa fa-spinner fa-spin fa-fw fa-2x"></i></div>';
+}
+
 /* Play track preview audio */
 var audioPlayer = document.getElementById("audioPlayer");
 var currentlyPlayingButton = null;

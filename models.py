@@ -162,13 +162,20 @@ class User_Genre(db.Model):
     # Will store ENUM: favorite, like, dislike
     favorite_status = db.Column(db.String(50))
     
-    last_viewed = db.Column(db.DateTime)
+    last_viewed = db.Column(db.DateTime,
+                            nullable=False,
+                            default=datetime.now())
 
     # Unique constraint on the combination of user_id and genre_id
     __table_args__ = (UniqueConstraint('user_id', 'genre_id'),)
     
     def __repr__(self):
         return f"<User_Genre id={self.id} user_id={self.user_id} genre_id={self.user_id}>"
+    
+    def update_last_viewed(self):
+        self.last_viewed = datetime.now()
+        db.session.commit()
+
     
 # Future Models to Consider:
 # Genre_Category: a table used to organize genres by category so that they can easily be browsed / navigated

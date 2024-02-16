@@ -1,7 +1,8 @@
 {# Define the playlist tracks table macro #}
 {% macro playlist_tracks_table(playlist_id) %}
     <div class="table-responsive">
-        <table class="table table-dark table-hover"
+        <table id="playlist-table"
+               class="table table-dark table-hover"
                data-toggle="table"
                data-pagination="true"
                data-side-pagination="client"
@@ -9,7 +10,8 @@
                data-cache="true"
                data-search="true"
                data-pagination-parts = "['pageInfo', 'pageList']"
-               data-page-size="50">
+               data-page-size="50"
+               data-loading-template="loadingTemplate">
             <thead>
                 <tr>
                 <th scope="col" data-field="preview_url" data-formatter="trackPreviewFormatter">Preview</th>

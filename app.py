@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, flash, session, jsonify, g
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from functools import wraps
 
 from forms import SignUpForm, LoginForm
@@ -210,13 +210,48 @@ def create_app(db_name, testing=False, developing=False):
     @app.route('/genre-inspector/<genre_title>')
     def genre_inspector(genre_title):
 
-        print(f"Generating genre inspector page for {genre_title}...")
+        print("IN GENRE INSPECTOR...")
+
+        # See if genre in db
+        try:
+            genre = Genre.query.filter(Genre.title == genre_title).one()
+        except NoResultFound:
+                flash("Gah, sorry. I don't have that genre in my database.", 'warning')
+                return redirect('/')    
+        
+        # If user logged in, get last time user viewed genre:
+        if g.user:
+            print("USER LOGGED IN...")
+            user_genre = User_Genre.query.filter(User_Genre.user_id == g.user.id, User_Genre.genre_id == genre.id).first()
+            
+            if user_genre:
+                print("USER LOGGED IN...")
+                if user_genre.last_viewed:
+                    last_viewed = user_genre.last_viewed.date()
+                else:
+                    last_viewed = "First time inspecting this genre (while logged in)"
+
+                # update the last viewed datetime
+                user_genre.update_last_viewed()
+            
+            # Create user_genre record
+            else:
+                user_genre = User_Genre(user_id=g.user.id, genre_id=genre.id)
+
+                db.session.add(user_genre)
+                db.session.commit()
+
+                last_viewed = "First time inspecting this genre (while logged in)" # still show init message
+        else:
+            last_viewed = None
 
         # Get playlist source (owner type) from query string
         source = request.args.get('source')
 
         if source == 'spotify' or source == 'thesoundsofspotify':
             playlist_id =spotify.get_playlist_by_genre(genre_title, source)
+        elif source is None:
+            playlist_id =spotify.get_playlist_by_genre(genre_title, 'spotify')
         else: 
             flash("I don't currently support the type of playlist you were looking for.", "warning")
             return redirect('/')
@@ -230,7 +265,7 @@ def create_app(db_name, testing=False, developing=False):
         
         playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
 
-        return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist=playlist_info_payload, playlist_link=playlist_link)
+        return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed)
 
     return app
 

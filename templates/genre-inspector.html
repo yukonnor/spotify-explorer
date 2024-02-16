@@ -18,14 +18,39 @@
                     <div class="col">
                         <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
                         {% if source == 'spotify' %}
-                            <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-primary mb-2">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                            <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-warning mb-2">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
                         {% elif source == 'thesoundsofspotify'%}
-                            <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-primary mb-2">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+                            <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-warning mb-2">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
                         {% endif %}
                     </div>
                 </div>
             </div> 
         </div>
+        {% if g.user %}
+        <div class="card">
+            <caption>{{ genre_title.title() }}:
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-favorite" autocomplete="off" 
+                    {% if favorite_status == 'favorite '%}
+                    checked
+                    {% endif %}>
+                <label class="btn btn-outline-success" for="btn-favorite">Favorite</label>
+
+                <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-like" autocomplete="off"
+                    {% if favorite_status == 'like '%}
+                    checked
+                    {% endif %}>
+                <label class="btn btn-outline-primary" for="btn-like">Like</label>
+
+                <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-dislike" autocomplete="off"
+                    {% if favorite_status == 'dislike '%}
+                    checked
+                    {% endif %}>
+                <label class="btn btn-outline-danger" for="btn-dislike">Dislike</label>
+            </div>
+            <div><b>Last Viewed: </b>{{ last_viewed }}</div>
+        </div>
+        {% endif %}
             
         {{ playlist_tracks_table(playlist.id) }}
 
