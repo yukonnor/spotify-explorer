@@ -77,7 +77,6 @@ class GenreParser(HTMLParser):
                 
         return parsed_dict
 
-
     
 script_dir = os.path.dirname(os.path.realpath(__file__))
 html_file_path = os.path.join(script_dir, 'every_noise_genre_snapshot_2024_02_07.html')
@@ -90,6 +89,7 @@ with open(html_file_path, 'r', encoding='utf-8') as file:
 # Run the parser
 parser = GenreParser()
 parser.feed(html_content)
+
 
 # Save genre dictionary to file
 with open('every_noise_genres.json', 'w') as file:
