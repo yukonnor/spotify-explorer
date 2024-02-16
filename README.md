@@ -10,19 +10,19 @@ This API uses OAuth2.0, making it possible for Spotify users to authenticate the
 
 -   **Users**
     -   id (PK)
-    -   display_name (string)
+    -   username (string)
+    -   email (string)
+    -   password (string)
+    -   image_url (string)
 -   **User Genres**
     -   id (PK)
     -   user_id (FK --> users.id)
     -   genre_id (FK --> genres.id)
-    -   is_favorite (boolean)
-    -   listened_to (boolean)
-    -   TBD: not_interested (boolean)
+    -   favorite_status (ENUM: favorite, like, dislike)
+    -   last_listened_to (datetime)
 -   **Genres**
     -   id (PK)
     -   title
-    -   is_parent_category (boolean)
-    -   is_collection (boolean)
     -   spotify_playlist_id (FK --> playlists.id)
     -   en_playlist_id (FK --> playlists.id)
     -   en_energy_score (number)

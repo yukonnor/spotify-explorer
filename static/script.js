@@ -1,3 +1,5 @@
+/* On page load, get user's favorite, listened-to, disliked genres */
+
 /* Bootstrap Table helpers */
 
 function trackPreviewFormatter(value, row) {
