@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, redirect, flash, session, jsonify, g
+from sqlalchemy.exc import IntegrityError
 from functools import wraps
 
 from forms import SignUpForm, LoginForm
@@ -86,7 +87,7 @@ def create_app(db_name, testing=False, developing=False):
                 db.session.commit()
 
             except IntegrityError:
-                flash("Username already taken", 'danger')
+                flash("Username or email already taken", 'danger')
                 return render_template('signup.html', form=form)
 
             do_login(user)
