@@ -1,0 +1,21 @@
+{% extends 'base.html' %} 
+{% block title %}{{ user.username }}{% endblock %} 
+{% block content %}
+
+<div class="container">
+    <div class="row align-items-end mt-4 mb-4">
+        {% if user.image_url %}
+        <div class="col-3">
+            <img class="user-img img-responsive" width="100%" src="{{user.image_url}}" alt="Image for the user.">
+        </div>
+        {% endif %}
+        <div class="col-9">
+            <div class="row">
+                <h1 class="display-4">{{ user.username }}</h1>
+            </div>
+            <p>Coming soon.</p>
+        </div> 
+    </div>
+</div>
+
+{% endblock %}

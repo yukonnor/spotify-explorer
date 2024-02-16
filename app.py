@@ -1,7 +1,13 @@
-from flask import Flask, request, render_template, redirect, flash, session, jsonify
+from flask import Flask, request, render_template, redirect, flash, session, jsonify, g
+from functools import wraps
+
+from forms import SignUpForm, LoginForm
 from models import db, connect_db, User, Genre, User_Genre
 from config import FLASK_SECRET_KEY
 from spotify_client import SpotifyClient
+
+
+CURR_USER_KEY = "logged_in_user"
 
 def create_app(db_name, testing=False, developing=False):
     app = Flask(__name__)
@@ -15,6 +21,126 @@ def create_app(db_name, testing=False, developing=False):
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
     spotify = SpotifyClient()
+
+    ##############################################################################
+    # User signup/login/logout 
+
+    def login_required(view_func):
+        @wraps(view_func)
+        def wrapper(*args, **kwargs):
+            if not g.user:
+                flash("Whoops, you need to log in to view that page.", "warning")
+                return redirect("/login")  
+            return view_func(*args, **kwargs)
+        return wrapper
+
+
+    @app.before_request
+    def add_user_to_g():
+        """If user is logged in, add curr user to Flask global var."""
+
+        if CURR_USER_KEY in session:
+            g.user = User.query.get(session[CURR_USER_KEY])
+
+        else:
+            g.user = None
+
+
+    def do_login(user):
+        """Log in user."""
+
+        session[CURR_USER_KEY] = user.id
+
+
+    def do_logout():
+        """Logout user."""
+
+        if CURR_USER_KEY in session:
+            del session[CURR_USER_KEY]
+
+    ##############################################################################
+    # Login/Register/User Routes
+            
+    @app.route('/signup', methods=["GET", "POST"])
+    def signup():
+        """Handle user signup.
+        Create new user and add to DB. Redirect to user profile page.
+        If form not valid, present form.
+        If the there already is a user with that username: flash message and re-present form.
+        """
+
+        form = SignUpForm()
+
+        # TODO: Redirect user if already logged in.
+
+        if form.validate_on_submit():
+            try:
+                user = User.signup(
+                    username=form.username.data,
+                    password=form.password.data,
+                    email=form.email.data
+                )
+                db.session.commit()
+
+            except IntegrityError:
+                flash("Username already taken", 'danger')
+                return render_template('signup.html', form=form)
+
+            do_login(user)
+
+            return redirect(f"/users/{user.id}")
+
+        else:
+            return render_template('signup.html', form=form)
+            
+    @app.route('/login', methods=["GET", "POST"])
+    def login():
+        """Handle user login."""
+
+        # TODO: Redirect user if already logged in.
+        # TODO: Add forgot pw flow.
+
+        form = LoginForm()
+
+        if form.validate_on_submit():
+            user = User.authenticate(form.username.data,
+                                    form.password.data)
+
+            if user:
+                do_login(user)
+                flash(f"Hello, {user.username}.", "success")
+                return redirect(f"/users/{user.id}")
+
+            flash("Invalid username/password...", 'danger')
+            return render_template('login.html', form=form)
+
+        return render_template('login.html', form=form)
+
+
+    @app.route('/logout')
+    def logout():
+        """Handle logout of user."""
+
+        do_logout()
+
+        flash("You've been logged out. See ya later.", 'primary')
+        return redirect("/")
+    
+    @app.route('/users/<int:user_id>')
+    @login_required
+    def show_profile(user_id):
+        """Show the user's profile page.
+           At this time, users can only see their own profile page."""
+        
+        if session.get(CURR_USER_KEY) and session[CURR_USER_KEY] != user_id:
+            flash("Sorry. You can only view your own profile at this time.", "warning")
+            return redirect(f"/users/{session[CURR_USER_KEY]}")
+
+        user = User.query.get_or_404(user_id)
+        return render_template('profile.html', user=user)
+
+    ##############################################################################
+    # General Routes
 
     @app.route('/')
     def home():
