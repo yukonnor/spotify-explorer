@@ -13,7 +13,59 @@
             <div class="row">
                 <h1 class="display-4">{{ user.username }}</h1>
             </div>
-            <p>Coming soon.</p>
+            <div class="row">
+                <h3>Your Genres</h3>
+                <div class="accordion" id="genreAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                            Favorite Genres
+                        </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                        <div class="accordion-body">
+                            <div>
+                                {% for genre in favorite_genres %}
+                                <a href="/genre-inspector/{{genre.title}}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">{{ genre.title }}</span></a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                            Saved Genres
+                        </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingTwo">
+                        <div class="accordion-body">
+                            <div>
+                                {% for genre in saved_genres %}
+                                <a href="/genre-inspector/{{genre.title}}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">{{ genre.title }}</span></a>
+                                {% endfor %}
+                            </div>                        
+                        </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                            Disliked Genres
+                        </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                        <div class="accordion-body">
+                            <div>
+                                {% for genre in disliked_genres %}
+                                <a href="/genre-inspector/{{genre.title}}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">{{ genre.title }}</span></a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
         </div> 
     </div>
 </div>

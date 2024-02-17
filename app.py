@@ -146,7 +146,11 @@ def create_app(db_name, testing=False, developing=False):
             return redirect(f"/users/{session[CURR_USER_KEY]}")
 
         user = User.query.get_or_404(user_id)
-        return render_template('profile.html', user=user)
+        favorite_genres = user.favorite_genres
+        saved_genres = user.saved_genres
+        disliked_genres = user.disliked_genres
+        
+        return render_template('profile.html', user=user, favorite_genres=favorite_genres, saved_genres=saved_genres, disliked_genres=disliked_genres)
 
     ##############################################################################
     # General Routes

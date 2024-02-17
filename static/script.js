@@ -93,6 +93,7 @@ function loadingTemplate(message) {
 }
 
 /* Play track preview audio */
+
 var audioPlayer = document.getElementById("audioPlayer");
 var currentlyPlayingButton = null;
 var currentlyPlayingTrack = null;
