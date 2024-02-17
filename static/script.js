@@ -1,9 +1,53 @@
-/* On page load, get user's favorite, listened-to, disliked genres */
-
 /* Enable tooltips */
 let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
+/* Process genre prefence button clicks */
+
+function process_genre_preference_click(favorite_status) {
+    // Replace these values with the actual user ID, genre ID, and favorite status
+    console.log(`Attempting to update user's genre preference to ${favorite_status}`);
+
+    let genreId = $(`#${favorite_status}-label`).data("genre-id");
+
+    const data = {
+        genre_id: genreId,
+        favorite_status: favorite_status,
+    };
+
+    // Make the AJAX POST request
+    $.ajax({
+        url: "/users/update-genre-favorite-status",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (response) {
+            // Update the button color on successful response
+            // $("#favorite-label").css("color", "black");
+            console.log(response);
+        },
+        error: function (error) {
+            // Display an alert on error
+            alert("Error: " + error.responseText);
+            console.error("Error:", error);
+        },
+    });
+}
+
+$(document).ready(function () {
+    $("#favorite-label").click(function () {
+        process_genre_preference_click("favorite");
+    });
+
+    $("#save-label").click(function () {
+        process_genre_preference_click("save");
+    });
+
+    $("#dislike-label").click(function () {
+        process_genre_preference_click("dislike");
+    });
 });
 
 /* Bootstrap Table helpers */

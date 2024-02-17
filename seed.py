@@ -42,7 +42,7 @@ with app.app_context():
     
     ug2 = User_Genre(user_id=condor.id, 
                      genre_id=2,
-                     favorite_status='like')
+                     favorite_status='save')
     
     ug3 = User_Genre(user_id=condor.id, 
                      genre_id=3,

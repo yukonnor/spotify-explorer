@@ -210,7 +210,7 @@ def create_app(db_name, testing=False, developing=False):
     @app.route('/genre-inspector/<genre_title>')
     def genre_inspector(genre_title):
 
-        print("IN GENRE INSPECTOR...")
+        print("...IN GENRE INSPECTOR...")
 
         # See if genre in db
         try:
@@ -219,31 +219,42 @@ def create_app(db_name, testing=False, developing=False):
                 flash("Gah, sorry. I don't have that genre in my database.", 'warning')
                 return redirect('/')    
         
-        # If user logged in, get last time user viewed genre:
+        # If user logged in, get genre favorite status last time user viewed genre:
         if g.user:
-            print("USER LOGGED IN...")
+            print("...USER LOGGED IN...")
             user_genre = User_Genre.query.filter(User_Genre.user_id == g.user.id, User_Genre.genre_id == genre.id).first()
             
             if user_genre:
-                print("USER LOGGED IN...")
+                print("...USER GENRE RECORD FOUND...")
                 if user_genre.last_viewed:
                     last_viewed = user_genre.last_viewed.date()
                 else:
-                    last_viewed = "First time inspecting this genre (while logged in)"
+                    last_viewed = "First time! (while logged in)"
+
+                if user_genre.favorite_status:
+                    print("...USER GENRE FAVORITE STATUS FOUND...")
+                    favorite_status = user_genre.favorite_status
+                else:
+                    print("...USER GENRE FAVORITE STATUS NOT SET...")
+                    favorite_status = None
 
                 # update the last viewed datetime
                 user_genre.update_last_viewed()
             
             # Create user_genre record
             else:
+                print("...NO USER GENRE RECORD FOUND...")
                 user_genre = User_Genre(user_id=g.user.id, genre_id=genre.id)
 
                 db.session.add(user_genre)
                 db.session.commit()
 
-                last_viewed = "First time inspecting this genre (while logged in)" # still show init message
+                last_viewed = "First time! (while logged in)" # still show init message
+                favorite_status = None
         else:
+            print("...USER NOT LOGGED IN...")
             last_viewed = None
+            favorite_status = None
 
         # Get playlist source (owner type) from query string
         source = request.args.get('source')
@@ -265,7 +276,36 @@ def create_app(db_name, testing=False, developing=False):
         
         playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
 
-        return render_template('genre-inspector.html', genre_title=genre_title, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed)
+        print("...LAST VIEWED: ", last_viewed, " FAVORITE STATUS: ", favorite_status)
+
+        return render_template('genre-inspector.html', genre=genre, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed, favorite_status=favorite_status)
+
+    @app.route('/users/update-genre-favorite-status', methods=["POST"])
+    @login_required
+    def update_genre_favorite_status():
+        """ Process AJAX request to set user's favorite status for a genre """
+        print("...IN UPDATE GENRE FAV STATUS...")
+
+        try:
+            # Parse JSON data from the request
+            data = request.get_json()
+
+            # Access individual fields from the JSON data
+            genre_id = data.get('genre_id')
+            favorite_status = data.get('favorite_status')
+
+            # Get and update user_genre record
+            user_genre = User_Genre.query.filter(User_Genre.user_id == g.user.id, User_Genre.genre_id == genre_id).first()
+
+            user_genre.favorite_status = favorite_status
+            db.session.commit()
+
+            # Assuming success, return a JSON response
+            return jsonify({'message': 'Update successful'})
+
+        except Exception as e:
+            # Handle exceptions or errors here
+            return jsonify({'error': str(e)}), 500
 
     return app
 

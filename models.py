@@ -43,10 +43,10 @@ class User(db.Model):
                                   secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='favorite')",
                                   back_populates='favorited_by_users')
 
-    liked_genres = db.relationship('Genre', secondary='users_genres',
-                               primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='like')",
-                               secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='like')",
-                               back_populates='liked_by_users')
+    saved_genres = db.relationship('Genre', secondary='users_genres',
+                               primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='save')",
+                               secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='save')",
+                               back_populates='saved_by_users')
 
     disliked_genres = db.relationship('Genre', secondary='users_genres',
                                   primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='dislike')",
@@ -130,10 +130,10 @@ class Genre(db.Model):
                                      secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='favorite')",
                                      back_populates='favorite_genres')
 
-    liked_by_users = db.relationship('User', secondary='users_genres',
-                                  primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='like')",
-                                  secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='like')",
-                                  back_populates='liked_genres')
+    saved_by_users = db.relationship('User', secondary='users_genres',
+                                  primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='save')",
+                                  secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='save')",
+                                  back_populates='saved_genres')
 
     disliked_by_users = db.relationship('User', secondary='users_genres',
                                      primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='dislike')",

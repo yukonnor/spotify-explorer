@@ -1,6 +1,6 @@
 {% from 'macros.html' import playlist_tracks_table %}
 {% extends 'base.html' %} 
-{% block title %}{{ genre_title.title() }} Inspector{% endblock %} 
+{% block title %}{{ genre.title.title() }} Inspector{% endblock %} 
 {% block content %}
 
     <div class="container">
@@ -23,27 +23,27 @@
                     <div class="col">
                         <div class="btn-group" role="group" aria-label="Toggle buttons to select your preference for the genre.">
                             <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-favorite" autocomplete="off"
-                                {% if favorite_status == 'favorite '%}
+                                {% if favorite_status == 'favorite'%}
                                 checked
                                 {% endif %}>
-                            <label id="favorite-label" class="btn btn-outline-success" for="btn-favorite" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorite Genre">
-                                <i class="{% if favorite_status == 'favorite ' %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
+                            <label id="favorite-label" class="btn btn-outline-success" for="btn-favorite" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorite Genre">
+                                <i class="{% if favorite_status == 'favorite' %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
                             </label>
 
-                            <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-like" autocomplete="off"
-                                {% if favorite_status == 'like '%}
+                            <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-save" autocomplete="off"
+                                {% if favorite_status == 'save'%}
                                 checked
                                 {% endif %}>
-                            <label id="like-label" class="btn btn-outline-primary" for="btn-like" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Like Genre">
-                                <i class="{% if favorite_status == 'like ' %}fa-solid{% else %}fa-regular{% endif %} fa-thumbs-up"></i>
+                            <label id="save-label" class="btn btn-outline-primary" for="btn-save" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Save Genre">
+                                <i class="{% if favorite_status == 'save' %}fa-solid{% else %}fa-regular{% endif %} fa-bookmark"></i>
                             </label>
 
                             <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-dislike" autocomplete="off"
-                                {% if favorite_status == 'dislike '%}
+                                {% if favorite_status == 'dislike'%}
                                 checked
                                 {% endif %}>
-                            <label id="dislike-label" class="btn btn-outline-danger" for="btn-dislike" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Dislike Genre">
-                                <i class="{% if favorite_status == 'dislike ' %}fa-solid{% else %}fa-regular{% endif %} fa-thumbs-down"></i>
+                            <label id="dislike-label" class="btn btn-outline-danger" for="btn-dislike" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Dislike Genre">
+                                <i class="{% if favorite_status == 'dislike' %}fa-solid{% else %}fa-regular{% endif %} fa-thumbs-down"></i>
                             </label>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
             
         {% endif %}
             
-        {{ playlist_tracks_table(playlist.id, genre_title, source) }}
+        {{ playlist_tracks_table(playlist.id, genre.title, source) }}
 
     </div>
 
