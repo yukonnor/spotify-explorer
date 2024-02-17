@@ -1,6 +1,23 @@
 /* On page load, get user's favorite, listened-to, disliked genres */
 
+/* Enable tooltips */
+let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
 /* Bootstrap Table helpers */
+
+$("#playlist-table").bootstrapTable({
+    // TODO: resolve 'You cannot initialize the table more than once!' warning.
+    formatSearch: function () {
+        return "Search Playlist";
+    },
+
+    formatDetailPagination: function () {
+        return "Showing %s tracks";
+    },
+});
 
 function trackPreviewFormatter(value, row) {
     // value is the track audio preview url
@@ -26,7 +43,9 @@ function artistGenresFormatter(value, row) {
 }
 
 function loadingTemplate(message) {
-    return '<div class="mt-5"><i class="fa fa-spinner fa-spin fa-fw fa-2x"></i></div>';
+    return `<div class="mt-5 mb-5"></div>
+            <div class="mt-5 mb-5"><i class="fa fa-spinner fa-spin fa-fw fa-2x"></i></div>
+            <div class="mt-5 mb-5">Fetching playlist tracks (this can take a while for large playlists)</div>`;
 }
 
 /* Play track preview audio */

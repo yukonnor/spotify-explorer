@@ -1,8 +1,18 @@
 {# Define the playlist tracks table macro #}
-{% macro playlist_tracks_table(playlist_id) %}
+{% macro playlist_tracks_table(playlist_id, genre_title, source) %}
+    <div class="toolbar">
+        {% if genre_title %}
+            {% if source == 'spotify' or source is none %}
+                <a href="/genre-inspector/{{ genre_title }}?source=thesoundsofspotify"><button type="button" class="btn btn-warning mb-2">Try EveryNoise's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+            {% elif source == 'thesoundsofspotify' %}
+                <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-warning mb-2">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
+            {% endif %}
+        {% endif %}
+        <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
+    </div>
     <div class="table-responsive">
         <table id="playlist-table"
-               class="table table-dark table-hover"
+               class="table table-dark table-hover"k
                data-toggle="table"
                data-pagination="true"
                data-side-pagination="client"
@@ -11,7 +21,10 @@
                data-search="true"
                data-pagination-parts = "['pageInfo', 'pageList']"
                data-page-size="50"
-               data-loading-template="loadingTemplate">
+               data-loading-template="loadingTemplate"
+               data-toolbar=".toolbar"
+               data-toolbar-align="right"
+               data-search-align="left">
             <thead>
                 <tr>
                 <th scope="col" data-field="preview_url" data-formatter="trackPreviewFormatter">Preview</th>
@@ -32,7 +45,6 @@
                 </tr>
             </thead>
         </table>
-        
         <!-- Audio element for playback -->
         <audio id="audioPlayer" controls style="display: none;">
             Your browser does not support the audio element.
