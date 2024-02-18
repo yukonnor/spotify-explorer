@@ -37,6 +37,7 @@ function process_genre_preference_click(favorite_status) {
 }
 
 $(document).ready(function () {
+    /* Event listeners for genre favorite status buttons */
     $("#favorite-label").click(function () {
         process_genre_preference_click("favorite");
     });

@@ -3,8 +3,146 @@
 {% block content %}
 
 <div class="container">
-    <h1>Genres</h1>
-    <p>Coming soon....</p>
+    <div class="row mt-3">
+        <h1>Genres</h1>
+        <form id="genreSearchForm" action="/search-genre">
+            <div class="row">
+                <div class="col-md-4 mt-1">
+                    <input type="text" class="form-control" id="genreSearchField" name="genre" placeholder="Example: Cowpunk">
+                </div>
+                <div class="col-md-2 p-md-0 mt-1">
+                    <button type="submit" class="btn btn-primary" onclick="submitGenreSearchForm()">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row justify-content-md-center mt-5">
+        <h3>Genres by Category</h3>
+        <div class="accordion accordion-flush mt-2" id="genreAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading1">
+                <button class="accordion-button collapsed h3" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse1" aria-expanded="false" aria-controls="flush-collapse1">
+                   Pop
+                </button>
+                </h2>
+                <div id="flush-collapse1" class="accordion-collapse collapse" aria-labelledby="flush-heading1">
+                <div class="accordion-body">Coming soon...</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse2" aria-expanded="false" aria-controls="flush-collapse2">
+                    Rock
+                </button>
+                </h2>
+                <div id="flush-collapse2" class="accordion-collapse collapse" aria-labelledby="flush-heading2">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse3" aria-expanded="false" aria-controls="flush-collapse3">
+                    Rap / Hip-Hop
+                </button>
+                </h2>
+                <div id="flush-collapse3" class="accordion-collapse collapse" aria-labelledby="flush-heading3">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse4" aria-expanded="false" aria-controls="flush-collapse4">
+                    Folk
+                </button>
+                </h2>
+                <div id="flush-collapse4" class="accordion-collapse collapse" aria-labelledby="flush-heading4">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading5">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse5" aria-expanded="false" aria-controls="flush-collapse5">
+                    Club
+                </button>
+                </h2>
+                <div id="flush-collapse5" class="accordion-collapse collapse" aria-labelledby="flush-heading5">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading6">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse6" aria-expanded="false" aria-controls="flush-collapse6">
+                    Soul / R&B
+                </button>
+                </h2>
+                <div id="flush-collapse6" class="accordion-collapse collapse" aria-labelledby="flush-heading6">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading7">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse7" aria-expanded="false" aria-controls="flush-collapse7">
+                    Country / Bluegrass / Blues
+                </button>
+                </h2>
+                <div id="flush-collapse7" class="accordion-collapse collapse" aria-labelledby="flush-heading7">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>   
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading8">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse8" aria-expanded="false" aria-controls="flush-collapse8">
+                    Caribbean
+                </button>
+                </h2>
+                <div id="flush-collapse8" class="accordion-collapse collapse" aria-labelledby="flush-heading8">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>         
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading9">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse9" aria-expanded="false" aria-controls="flush-collapse9">
+                    Jazz
+                </button>
+                </h2>
+                <div id="flush-collapse9" class="accordion-collapse collapse" aria-labelledby="flush-heading9">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading10">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse10" aria-expanded="false" aria-controls="flush-collapse10">
+                    Classical / Opera
+                </button>
+                </h2>
+                <div id="flush-collapse10" class="accordion-collapse collapse" aria-labelledby="flush-heading10">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading11">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse11" aria-expanded="false" aria-controls="flush-collapse11">
+                    Avante Garde / Noise
+                </button>
+                </h2>
+                <div id="flush-collapse11" class="accordion-collapse collapse" aria-labelledby="flush-heading11">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="flush-heading12">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse12" aria-expanded="false" aria-controls="flush-collapse12">
+                    Ambient / New Age
+                </button>
+                </h2>
+                <div id="flush-collapse12" class="accordion-collapse collapse" aria-labelledby="flush-heading12">
+                <div class="accordion-body">Coming soon..</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
 </div>
 
 {% endblock %}

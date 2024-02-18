@@ -7,6 +7,17 @@ from models import db, connect_db, User, Genre, User_Genre
 from config import FLASK_SECRET_KEY
 from spotify_client import SpotifyClient
 
+# TODO:
+# - Genre search
+# - Artist page
+# - Table data formatting & tool tips
+# - Genre filter on table
+# - Tests
+#
+# - User playlist type preference
+# - Genre index list
+# - Genre attributes display
+
 
 CURR_USER_KEY = "logged_in_user"
 
@@ -210,6 +221,23 @@ def create_app(db_name, testing=False, developing=False):
 
         return response
 
+    @app.route('/search-genre')
+    def search_genre():
+        """Process the 'search genre' form, redirecting user to the genre inspector page for the genre."""
+
+        genre_title = request.args.get('genre')
+        genre_title = genre_title.lower()
+
+        genre_title_wildcards = genre_title.replace(' ', '%')
+
+        # See if genre in db
+        try:
+            genre = Genre.query.filter(Genre.title.like(genre_title_wildcards)).first()
+        except NoResultFound:
+            flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
+            return redirect('/genres')    
+
+        return redirect(f'/genre-inspector/{genre.title}')
 
     @app.route('/genre-inspector/<genre_title>')
     def genre_inspector(genre_title):
@@ -220,8 +248,8 @@ def create_app(db_name, testing=False, developing=False):
         try:
             genre = Genre.query.filter(Genre.title == genre_title).one()
         except NoResultFound:
-                flash("Gah, sorry. I don't have that genre in my database.", 'warning')
-                return redirect('/')    
+                flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
+                return redirect('/genres')    
         
         # If user logged in, get genre favorite status last time user viewed genre:
         if g.user:
