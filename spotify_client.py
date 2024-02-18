@@ -121,7 +121,7 @@ class SpotifyClient:
                 track['artist_id'] = track['artists'][0]['id'] 
 
             tracks_batch = self.get_track_audio_features(tracks_batch)
-            tracks_batch = self.get_artist_details(tracks_batch)
+            tracks_batch = self.get_tracks_artists(tracks_batch)
         
             # add new track sublist to the tracks list
             tracks = tracks + tracks_batch
@@ -178,7 +178,7 @@ class SpotifyClient:
 
         return tracks
 
-    def get_artist_details(self, tracks):
+    def get_tracks_artists(self, tracks):
         """ Get artist details (namely popularity & genres) and append to tracks """
         artist_ids = [track.get('artist_id', None) for track in tracks]
         aritst_ids_param = ','.join(artist_ids)
@@ -212,6 +212,64 @@ class SpotifyClient:
                 tracks[index]["artist_genres"] = artist.get("genres", None)
 
         return tracks
+    
+    def get_artist_details(self, artist_id):
+        """ Get the details for a singluar artist """
+        artist_url = f'https://api.spotify.com/v1/artists/{artist_id}'
+
+        response = requests.get(artist_url, headers=self.headers)
+
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(artist_url, headers=self.headers)
+
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()   
+                return None     
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+            return None
+
+        artist_payload = response.json()
+
+        return artist_payload
+    
+    def get_artist_top_tracks(self, artist_id):
+        """ Get the top tracks for a particular artist """
+        artist_top_tracks_url = f'https://api.spotify.com/v1/artists/{artist_id}/top-tracks'
+        params = {'ids': artist_id, 'market': 'US'} 
+
+        response = requests.get(artist_top_tracks_url, headers=self.headers, params=params)
+
+        if self.should_retry(response):
+            # get new toke and try request again
+            self.get_token()
+            response = requests.get(artist_top_tracks_url, headers=self.headers)
+
+            # if fails again, back out
+            if response.status_code not in [200, 201, 202, 204]:
+                self.handle_error_status_code()   
+                return None     
+            
+        elif response.status_code not in [200, 201, 202, 204]:
+            self.handle_error_status_code
+            return None
+
+        top_tracks_payload = response.json().get('tracks')
+
+        # clean up the data to our liking
+        for track in top_tracks_payload:
+            track['album'] = track['album']['name'] 
+            
+            # add duration in minutes & seconds
+            track['duration']= convert_ms_to_mins(track['duration_ms'])
+
+        return top_tracks_payload
+        
+
 
     def get_playlist_by_genre(self, genre_title, source):
         """ Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API. """

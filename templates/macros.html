@@ -12,7 +12,7 @@
     </div>
     <div class="table-responsive">
         <table id="playlist-table"
-               class="table table-dark table-hover"k
+               class="table table-dark table-hover"
                data-toggle="table"
                data-pagination="true"
                data-side-pagination="client"
@@ -29,7 +29,7 @@
                 <tr>
                 <th scope="col" data-field="preview_url" data-formatter="trackPreviewFormatter">Preview</th>
                 <th scope="col" data-sortable="true" data-field="name">Track</th>
-                <th scope="col" data-sortable="true" data-field="artist_name">Artist</th>
+                <th scope="col" data-sortable="true" data-field="artist_name" data-formatter="artistNameFormatter">Artist</th>
                 <th scope="col" data-sortable="true" data-field="album">Album</th>
                 <th scope="col" data-field="artist_genres" data-formatter="artistGenresFormatter">Artist Genres</th>
                 <th scope="col" data-sortable="true" data-field="duration">Duration</th>
@@ -42,6 +42,35 @@
                 <th scope="col" data-sortable="true" data-field="positivity">Positivity</th>
                 <th scope="col" data-sortable="true" data-field="acousticness">Acoustic?</th>
                 <th scope="col" data-sortable="true" data-field="instrumentalness">Instrumental?</th>
+                </tr>
+            </thead>
+        </table>
+        <!-- Audio element for playback -->
+        <audio id="audioPlayer" controls style="display: none;">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+{% endmacro %}
+
+
+{% macro artist_top_tracks_table(artist_id) %}
+    <div class="table-responsive">
+        <table id="top-tracks-table"
+               class="table table-dark table-hover"
+               data-toggle="table"
+               data-pagination="true"
+               data-side-pagination="client"
+               data-url="/artists/{{ artist_id }}/top-tracks"  
+               data-cache="true"
+               data-search="true"
+               data-loading-template="loadingTemplate"
+               data-search-align="left">
+            <thead>
+                <tr>
+                <th scope="col" data-field="preview_url" data-formatter="trackPreviewFormatter">Preview</th>
+                <th scope="col" data-sortable="true" data-field="name">Track</th>
+                <th scope="col" data-sortable="true" data-field="album">Album</th>
+                <th scope="col" data-sortable="true" data-field="duration">Duration</th>
                 </tr>
             </thead>
         </table>

@@ -74,6 +74,21 @@ function trackPreviewFormatter(value, row) {
     }
 }
 
+function artistNameFormatter(value, row) {
+    if (value) {
+        // if value > 21 characters, show tooltip: data-bs-toggle="tooltip" data-bs-placement="bottom" title="${value}"
+        if (value.length > 21) {
+            let artistHtml = `<a href="/artists/${row.artist_id}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${value}"">${value}</a>`;
+            return artistHtml;
+        } else {
+            let artistHtml = `<a href="/artists/${row.artist_id}">${value}</a>`;
+            return artistHtml;
+        }
+    } else {
+        return "";
+    }
+}
+
 function artistGenresFormatter(value, row) {
     // value is a list a genres associated with the artist
     if (value) {

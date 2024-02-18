@@ -316,6 +316,7 @@ def create_app(db_name, testing=False, developing=False):
     @login_required
     def update_genre_favorite_status():
         """ Process AJAX request to set user's favorite status for a genre """
+
         print("...IN UPDATE GENRE FAV STATUS...")
 
         try:
@@ -338,6 +339,34 @@ def create_app(db_name, testing=False, developing=False):
         except Exception as e:
             # Handle exceptions or errors here
             return jsonify({'error': str(e)}), 500
+        
+    @app.route('/artists/<artist_id>')
+    def show_artist(artist_id):
+        """Render the artist page. At this point, it just shows the artist's top tracks."""
+
+        artist_payload = spotify.get_artist_details(artist_id)
+
+        if not artist_payload:
+            flash("Wasn't able to fetch the artist :/  (Devs: see logs for details)", "warning")
+            return redirect('/')
+        
+        print(artist_payload)
+
+        return render_template('artist-detail.html', artist=artist_payload)
+    
+    @app.route('/artists/<artist_id>/top-tracks')
+    def get_artist_top_tracks(artist_id):
+        """Fetch the artist's top tracks via bootstrap-table AJAX call."""
+
+        top_tracks_payload = spotify.get_artist_top_tracks(artist_id)
+
+        # Create a JSON response
+        response = jsonify(top_tracks_payload)
+
+        # Add Cache-Control header to force caching for 3 hours
+        response.headers['Cache-Control'] = 'max-age=10600'
+
+        return response
 
     return app
 

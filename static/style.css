@@ -58,3 +58,7 @@ th:nth-child(5) {
     outline: 0;
     box-shadow: none;
 }
+
+td a {
+    color: white;
+}

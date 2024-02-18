@@ -1,0 +1,33 @@
+{% from 'macros.html' import artist_top_tracks_table %}
+{% extends 'base.html' %} 
+{% block title %}{{ artist.name }}{% endblock %} 
+{% block content %}
+
+    <div class="container">
+        <div class="row align-items-end mt-4 mb-4">
+            {% if artist.images %}
+            <div class="col-3">
+                <img class="playlist-img img-responsive" width="100%" src="{{artist.images[0].url}}" alt="Image of the artist.">
+            </div>
+            {% endif %}
+            <div class="col-9">
+                <div class="row">
+                    <h1 class="display-4">{{ artist.name }}</h1>
+                    
+                </div>
+                <div class="row">
+                    <div class="col">
+                    <b>Genres: </b>
+                    {% for genre in artist.genres %}
+                        <a href="/genre-inspector/{{ genre }}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">{{ genre }}</span></a>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div> 
+        </div>
+        
+        {{ artist_top_tracks_table(artist.id) }}
+
+    </div>
+
+{% endblock %}
