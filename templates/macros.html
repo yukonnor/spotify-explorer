@@ -9,6 +9,7 @@
             {% endif %}
         {% endif %}
         <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
+        <button type="button" class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#playlistExplainModal"><i class="fa-regular fa-circle-question"></i></i></button>
     </div>
     <div class="table-responsive">
         <table id="playlist-table"
@@ -49,6 +50,31 @@
         <audio id="audioPlayer" controls style="display: none;">
             Your browser does not support the audio element.
         </audio>
+
+        <!-- Modal -->
+        <div class="modal fade" id="playlistExplainModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">What do these columns mean?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>This data is sourced directly from the <a href="https://developer.spotify.com/documentation/web-api" target="_blank">Spotify Web API</a>. Here are their definitions for these attributes.</p>
+                <ul>
+                    <li><b>Track Popularity:</b> "The popularity of a track is a value between 0 and 100, with 100 being the most popular. The popularity is calculated by algorithm and is based, in the most part, on the total number of plays the track has had and how recent those plays are.
+Generally speaking, songs that are being played a lot now will have a higher popularity than songs that were played a lot in the past."</li>
+                    <li><b>Artist Popularity:</b> "The value will be between 0 and 100, with 100 being the most popular. The artist's popularity is calculated from the popularity of all the artist's tracks."</li>
+                    <li><b>Danceability:</b> "Describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0% is least danceable and 100% is most danceable."</li>
+                    <li><b>Energy:</b> "Represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy."</li>
+                    <li><b>Positivity:</b> "(aka "Valence") A measure from 0% to 100% describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."</li>
+                    <li><b>Acoustic:</b> "A confidence measure from 0% to 100% of whether the track is acoustic." (i.e. played with acoustic insrtruments)</li>
+                    <li><b>Instrumental:</b> "Predicts whether a track contains no vocals. The closer the instrumentalness value is to 100%, the greater likelihood the track contains no vocal content. Values above 50% are intended to represent instrumental tracks"</li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        </div>
     </div>
 {% endmacro %}
 

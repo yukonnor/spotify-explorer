@@ -169,12 +169,12 @@ class SpotifyClient:
         # Add audio features to tracks dict
         for index, track in enumerate(track_audio_features):
             if track: 
-                tracks[index]["danceability"] = round(track.get("danceability", None), 3) # float: 0.0 - 1.0
-                tracks[index]["energy"] = round(track.get("energy", None), 3) # float: 0.0 - 1.0
-                tracks[index]["acousticness"] = round(track.get("acousticness", None), 3) # float: 0.0 - 1.0
-                tracks[index]["instrumentalness"] = round(track.get("instrumentalness", None), 3) # float: 0.0 - 1.0
+                tracks[index]["danceability"] = "{:.1%}".format(round(track.get("danceability", None), 3)) # float: 0.0 - 1.0
+                tracks[index]["energy"] = "{:.1%}".format(round(track.get("energy", None), 3)) # float: 0.0 - 1.0
+                tracks[index]["acousticness"] = "{:.1%}".format(round(track.get("acousticness", None), 3)) # float: 0.0 - 1.0
+                tracks[index]["instrumentalness"] = "{:.1%}".format(round(track.get("instrumentalness", None), 3)) # float: 0.0 - 1.0
+                tracks[index]["positivity"] = "{:.1%}".format(round(track.get("valence", None), 3))  # float: 0.0 - 1.0
                 tracks[index]["tempo"] = round(track.get("tempo", None))
-                tracks[index]["positivity"] = round(track.get("valence", None), 3)  # float: 0.0 - 1.0
 
         return tracks
 
@@ -207,7 +207,8 @@ class SpotifyClient:
         # Add artist metadata to tracks dict
         for index, artist in enumerate(artists):
             if artist: 
-                tracks[index]["artist_followers"] = artist.get("followers", None).get("total", None)
+                artist_followers = artist.get("followers", None).get("total", None)
+                tracks[index]["artist_followers"] = "{:,}".format(artist_followers)
                 tracks[index]["artist_popularity"] = artist.get("popularity", None)
                 tracks[index]["artist_genres"] = artist.get("genres", None)
 
@@ -263,7 +264,7 @@ class SpotifyClient:
         # clean up the data to our liking
         for track in top_tracks_payload:
             track['album'] = track['album']['name'] 
-            
+
             # add duration in minutes & seconds
             track['duration']= convert_ms_to_mins(track['duration_ms'])
 
