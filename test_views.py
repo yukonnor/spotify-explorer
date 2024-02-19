@@ -1,12 +1,9 @@
 from unittest import TestCase
 
-from app import create_app, CURR_USER_KEY, g
-from models import db, connect_db, User, Genre, User_Genre
+from app import app, CURR_USER_KEY, g
+from models import db, User, Genre, User_Genre
 
-
-app = create_app("spotify_explorer_test", testing=True)
 app.config['WTF_CSRF_ENABLED'] = False
-connect_db(app)
 
 with app.app_context():
     db.drop_all()

@@ -1,16 +1,13 @@
 from unittest import TestCase
 
-from app import create_app
-from models import db, connect_db, User, Genre, User_Genre
+from app import app, db
+from models import db, User, Genre, User_Genre
 from sqlalchemy.exc import IntegrityError
 
+from app import app
 
-app = create_app("spotify_explorer_test", testing=True)
-connect_db(app)
-
-with app.app_context():
-    db.drop_all()
-    db.create_all()
+db.drop_all()
+db.create_all()
 
 
 class SpotifyExplorerModelTests(TestCase):
