@@ -5,7 +5,9 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime
 
 bcrypt = Bcrypt()
-db = SQLAlchemy()
+
+# Set expire_on_commit to False to support unit tests
+db = SQLAlchemy(session_options={"expire_on_commit": False})
 
 def connect_db(app):
     with app.app_context():
@@ -41,7 +43,8 @@ class User(db.Model):
     favorite_genres = db.relationship('Genre', secondary='users_genres',
                                   primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='favorite')",
                                   secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='favorite')",
-                                  back_populates='favorited_by_users')
+                                  back_populates='favorited_by_users',
+                                  overlaps='saved_genres, disliked_genres')
 
     saved_genres = db.relationship('Genre', secondary='users_genres',
                                primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='save')",
@@ -51,7 +54,8 @@ class User(db.Model):
     disliked_genres = db.relationship('Genre', secondary='users_genres',
                                   primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='dislike')",
                                   secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='dislike')",
-                                  back_populates='disliked_by_users')
+                                  back_populates='disliked_by_users',
+                                  overlaps='favorite_genres, saved_genres')
 
     @classmethod
     def signup(cls, username, email, password):
@@ -93,7 +97,7 @@ class User(db.Model):
     
     def __repr__(self):
         u = self
-        return f"<User id={u.id} first_name={u.username}>"
+        return f"<User id={u.id}: {u.username}, {u.email}>"
     
 
 class Genre(db.Model):
@@ -128,17 +132,23 @@ class Genre(db.Model):
     favorited_by_users = db.relationship('User', secondary='users_genres',
                                      primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='favorite')",
                                      secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='favorite')",
-                                     back_populates='favorite_genres')
+                                     back_populates='favorite_genres',
+                                     overlaps='saved_by_users, disliked_by_users',
+                                     viewonly=True)
 
     saved_by_users = db.relationship('User', secondary='users_genres',
                                   primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='save')",
                                   secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='save')",
-                                  back_populates='saved_genres')
+                                  back_populates='saved_genres',
+                                  overlaps='favorited_by_users, disliked_by_users',
+                                  viewonly=True)
 
     disliked_by_users = db.relationship('User', secondary='users_genres',
                                      primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='dislike')",
                                      secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='dislike')",
-                                     back_populates='disliked_genres')
+                                     back_populates='disliked_genres',
+                                     overlaps='favorited_by_users, saved_by_users',
+                                     viewonly=True)
     
     def __repr__(self):
         return f"<Genre id={self.id} title={self.title}>"
