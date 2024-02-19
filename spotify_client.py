@@ -267,8 +267,6 @@ class SpotifyClient:
     def get_playlist_by_genre(self, genre_title, source):
         """ Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API. """
 
-        print("Looking for genre playlists for genre: ", genre_title)
-
         search_url = "https://api.spotify.com/v1/search"
 
         if source == 'spotify':

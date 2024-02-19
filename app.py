@@ -242,8 +242,6 @@ def create_app(db_name, testing=False, developing=False):
     @app.route('/genre-inspector/<genre_title>')
     def genre_inspector(genre_title):
 
-        print("...IN GENRE INSPECTOR...")
-
         # See if genre in db
         try:
             genre = Genre.query.filter(Genre.title == genre_title).one()
@@ -253,38 +251,8 @@ def create_app(db_name, testing=False, developing=False):
         
         # If user logged in, get genre favorite status last time user viewed genre:
         if g.user:
-            print("...USER LOGGED IN...")
-            user_genre = User_Genre.query.filter(User_Genre.user_id == g.user.id, User_Genre.genre_id == genre.id).first()
-            
-            if user_genre:
-                print("...USER GENRE RECORD FOUND...")
-                if user_genre.last_viewed:
-                    last_viewed = user_genre.last_viewed.date()
-                else:
-                    last_viewed = "First time! (while logged in)"
-
-                if user_genre.favorite_status:
-                    print("...USER GENRE FAVORITE STATUS FOUND...")
-                    favorite_status = user_genre.favorite_status
-                else:
-                    print("...USER GENRE FAVORITE STATUS NOT SET...")
-                    favorite_status = None
-
-                # update the last viewed datetime
-                user_genre.update_last_viewed()
-            
-            # Create user_genre record
-            else:
-                print("...NO USER GENRE RECORD FOUND...")
-                user_genre = User_Genre(user_id=g.user.id, genre_id=genre.id)
-
-                db.session.add(user_genre)
-                db.session.commit()
-
-                last_viewed = "First time! (while logged in)" # still show init message
-                favorite_status = None
+            last_viewed, favorite_status = User_Genre.get_user_genre_facts(genre, g.user.id)
         else:
-            print("...USER NOT LOGGED IN...")
             last_viewed = None
             favorite_status = None
 
@@ -308,16 +276,12 @@ def create_app(db_name, testing=False, developing=False):
         
         playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
 
-        print("...LAST VIEWED: ", last_viewed, " FAVORITE STATUS: ", favorite_status)
-
         return render_template('genre-inspector.html', genre=genre, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed, favorite_status=favorite_status)
 
     @app.route('/users/update-genre-favorite-status', methods=["POST"])
     @login_required
     def update_genre_favorite_status():
         """ Process AJAX request to set user's favorite status for a genre """
-
-        print("...IN UPDATE GENRE FAV STATUS...")
 
         try:
             # Parse JSON data from the request
@@ -349,8 +313,6 @@ def create_app(db_name, testing=False, developing=False):
         if not artist_payload:
             flash("Wasn't able to fetch the artist :/  (Devs: see logs for details)", "warning")
             return redirect('/')
-        
-        print(artist_payload)
 
         return render_template('artist-detail.html', artist=artist_payload)
     

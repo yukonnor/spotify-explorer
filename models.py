@@ -153,6 +153,7 @@ class Genre(db.Model):
     def __repr__(self):
         return f"<Genre id={self.id} title={self.title}>"
     
+    
 class User_Genre(db.Model):
     """ A join table used to store user preferences and history with genres. """
     __tablename__ = 'users_genres'
@@ -182,9 +183,43 @@ class User_Genre(db.Model):
     def __repr__(self):
         return f"<User_Genre id={self.id} user_id={self.user_id} genre_id={self.user_id}>"
     
+
+    @classmethod
+    def get_user_genre_facts(cls, genre, user_id):
+        """Get the last_view date or string and the favorite status for a user and genre."""
+
+        user_genre = cls.query.filter(cls.user_id == user_id, cls.genre_id == genre.id).first()
+            
+        if user_genre:
+            if user_genre.last_viewed:
+                last_viewed = user_genre.last_viewed.date()
+            else:
+                last_viewed = "First time! (while logged in)"
+
+            if user_genre.favorite_status:
+                favorite_status = user_genre.favorite_status
+            else:
+                favorite_status = None
+
+            # update the last viewed datetime
+            user_genre.update_last_viewed()
+        
+        # Create user_genre record
+        else:
+            user_genre = User_Genre(user_id=g.user.id, genre_id=genre.id)
+            db.session.add(user_genre)
+            db.session.commit()
+
+            last_viewed = "First time! (while logged in)" # still show init message
+            favorite_status = None
+
+        return last_viewed, favorite_status
+    
     def update_last_viewed(self):
         self.last_viewed = datetime.now()
         db.session.commit()
+
+
 
     
 # Future Models to Consider:
