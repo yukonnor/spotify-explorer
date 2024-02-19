@@ -351,6 +351,6 @@ def extract_playlist_id(link):
 
 if __name__ == "__main__":
     app = create_app('spotify_explorer', developing=True)
-    app.app_context().push() # remove when done testing
+    # app.app_context().push() # remove when done testing
     connect_db(app)
-    app.run(debug=True)      # show when done testing
+    app.run(debug=False)      
