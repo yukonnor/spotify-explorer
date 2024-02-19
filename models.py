@@ -206,7 +206,7 @@ class User_Genre(db.Model):
         
         # Create user_genre record
         else:
-            user_genre = User_Genre(user_id=g.user.id, genre_id=genre.id)
+            user_genre = User_Genre(user_id=user_id, genre_id=genre.id)
             db.session.add(user_genre)
             db.session.commit()
 
