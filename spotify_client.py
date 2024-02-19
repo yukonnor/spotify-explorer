@@ -8,11 +8,8 @@ import requests
 # large playlist: 40z0ffEGmOcOjldmXI8ie6
 # cowpunk: 37i9dQZF1EIgtiaACXv6tQ
 
-
 class SpotifyClient:
     def __init__(self):
-        
-        self.access_token = 'tbd'   # QUESTION: Is this needed? 
         self.get_token()
 
     def get_token(self):
@@ -51,11 +48,7 @@ class SpotifyClient:
     def get_playlist_info(self, playlist_id):
         """Get metadata about a playlist from the Spotify API."""
 
-        # TODO: Handle status code != 200 (Access Token, Private Playlists, ID not found, etc)
-        # TODO: Handle large playlists (next query and lists too long to handle)
-        # TODO: Handle playlists with episodes instead of tracks (track.type == episode)
         # TODO: Handle tracks with multiple artists
-        # TODO: Set width of columns to be constant arround trunc length
 
         playlist_url = f'https://api.spotify.com/v1/playlists/{playlist_id}'
         fields =  'id, href, name, images'
@@ -270,7 +263,6 @@ class SpotifyClient:
 
         return top_tracks_payload
         
-
 
     def get_playlist_by_genre(self, genre_title, source):
         """ Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API. """
