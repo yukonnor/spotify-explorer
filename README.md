@@ -1,7 +1,7 @@
 # Capstone Project One | Spotify Playlist Inspector & Genre Discovery
 
 **TITLE:** Spotify Explorer
-**URL:** {TBD}
+**URL:** https://spotify-explorer.onrender.com/
 
 ![Screenshot 2024-02-19 at 3 42 01 PM](https://github.com/hatchways-community/capstone-project-one-759b191e666f4d7d93b26845cc374036/assets/22033835/788de627-75d7-4cdb-817b-d2931b281b1c)
 
