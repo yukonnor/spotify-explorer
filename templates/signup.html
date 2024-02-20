@@ -1,24 +1,27 @@
-{% extends 'base.html' %} 
-{% block title %}Sign Up{% endblock %} 
-{% block content %}
+{% extends 'base.html' %} {% block title %}Sign Up{% endblock %} {% block content %}
 
 <div class="container">
     <div class="row justify-content-md-center mt-5">
-            <div class="col-md-7 col-lg-5">
-                <h1>Sign Up</h1>
-                <caption>Welcome to this Spotify exploration app. Let's get to exploring some music.</caption>
-                <form method="POST" id="login_form">
-                    {{ form.hidden_tag() }}
+        <div class="col-md-7 col-lg-5">
+            <h1>Sign Up</h1>
+            <p>Welcome to the Spotify Explorer.</p>
+            <p>
+                <b>Why sign up?</b> Signing up let's you bookmark genres and let's you see whether
+                you've explored a genre in the past. More functionality will come with time :)
+            </p>
+            <div class="form-text">
+                We don't send or share emails. One day they will be used to recover forgotten
+                passwords. For now....remember your password.
+            </div>
+            <form method="POST" id="login_form">
+                {{ form.hidden_tag() }} {% for field in form if field.widget.input_type != 'hidden'
+                %} {% for error in field.errors %}
+                <span class="text-danger">{{ error }}</span>
+                {% endfor %} {{ field(placeholder=field.label.text, class="form-control mt-3 mb-3")
+                }} {% endfor %}
 
-                    {% for field in form if field.widget.input_type != 'hidden' %}
-                    {% for error in field.errors %}
-                        <span class="text-danger">{{ error }}</span>
-                    {% endfor %}
-                    {{ field(placeholder=field.label.text, class="form-control mt-3 mb-3") }}
-                    {% endfor %}
-
-                    <button class="btn btn-primary btn-block btn-lg">Sign Up</button>
-                </form>
+                <button class="btn btn-primary btn-block btn-lg">Sign Up</button>
+            </form>
         </div>
     </div>
 </div>
