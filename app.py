@@ -4,7 +4,7 @@ from functools import wraps
 
 from forms import SignUpForm, LoginForm
 from models import db, connect_db, User, Genre, User_Genre
-from config import FLASK_SECRET_KEY
+from config import FLASK_SECRET_KEY, SQLALCHEMY_DATABASE_URI_PROD
 from spotify_client import SpotifyClient
 
 # TODO:
@@ -17,16 +17,16 @@ CURR_USER_KEY = "logged_in_user"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = FLASK_SECRET_KEY
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://xeeinqho:sql3hCFM34G5F08S6-nxTxiJSkjLAoEE@bubble.db.elephantsql.com/xeeinqho'
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI_PROD
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']  =  False
 
 # Development helpters
 app.testing = False
 app.config['SQLALCHEMY_ECHO'] =  False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-# app.app_context().push() # remove when done testing
+app.app_context().push() # remove when done testing
 
-connect_db(app)
+connect_db(app)  
 
 spotify = SpotifyClient()
 
@@ -338,3 +338,10 @@ def extract_playlist_id(link):
     playlist_id = parts[playlist_index + 1].split('?')[0]
 
     return playlist_id
+
+
+# remove when done testing
+# if __name__ == '__main__':
+#     app.app_context().push() # remove when done testing
+#     connect_db(app)
+#     app.run(debug=True)  
