@@ -360,6 +360,3 @@ def extract_playlist_id(link):
     playlist_id = parts[playlist_index + 1].split('?')[0]
 
     return playlist_id
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
