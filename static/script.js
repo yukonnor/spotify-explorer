@@ -5,11 +5,7 @@ let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 });
 
 /* Process genre prefence button clicks */
-
 function process_genre_preference_click(favorite_status) {
-    // Replace these values with the actual user ID, genre ID, and favorite status
-    console.log(`Attempting to update user's genre preference to ${favorite_status}`);
-
     let genreId = $(`#${favorite_status}-label`).data("genre-id");
 
     const data = {
@@ -17,7 +13,6 @@ function process_genre_preference_click(favorite_status) {
         favorite_status: favorite_status,
     };
 
-    // Make the AJAX POST request
     $.ajax({
         url: "/users/update-genre-favorite-status",
         type: "POST",
@@ -122,11 +117,6 @@ function playPreview(previewUrl, buttonElement) {
     // Check if the audio is currently playing
     if (currentlyPlayingButton !== null && currentlyPlayingTrack !== previewUrl) {
         // If playing and a different button was clicked, pause the audio and reset the previous button
-
-        console.log(
-            "Audio actively playing but different button was clicked. Stop previous button audio."
-        );
-
         const $prevButton = currentlyPlayingButton;
         const $prevIcon = $prevButton.find("i");
 
@@ -140,19 +130,11 @@ function playPreview(previewUrl, buttonElement) {
 
     if (currentlyPlayingTrack === previewUrl) {
         // If the same button is clicked again, toggle playback
-
-        console.log("Same button clicked. If playing, pause. If paused, play.");
-
         if (audioPlayer.paused) {
-            console.log("Audio player was paused.");
             audioPlayer.play();
-            console.log("audioPlayer.play()");
-            console.log("audioPlayer.src:", audioPlayer.src);
-            console.log("audioPlayer.paused: ", audioPlayer.paused);
             $playButton.removeClass("btn-success").addClass("btn-warning");
             $playIcon.removeClass("fa-circle-play").addClass("fa-circle-pause");
         } else {
-            console.log("Audio player was playing. Pausing audio player.");
             audioPlayer.pause();
             $playButton.removeClass("btn-warning").addClass("btn-success");
             $playIcon.removeClass("fa-circle-pause").addClass("fa-circle-play");
@@ -165,9 +147,10 @@ function playPreview(previewUrl, buttonElement) {
         audioPlayer.src = previewUrl;
         audioPlayer.play();
 
-        console.log("audioPlayer.play()");
-        console.log("audioPlayer.src:", audioPlayer.src);
-        console.log("audioPlayer.paused: ", audioPlayer.paused);
+        // Provide debugging notes:
+        if (audioPlayer.paused) {
+            console.log("Not hearing audio? Make sure 'autoplay' is enabled on your browser.");
+        }
 
         currentlyPlayingButton = $playButton;
         currentlyPlayingTrack = previewUrl;
@@ -177,7 +160,6 @@ function playPreview(previewUrl, buttonElement) {
 
         // Attach an event listener for the 'ended' event to reset the playback state
         audioPlayer.addEventListener("ended", function () {
-            console.log("Audio ended.");
             currentlyPlayingButton = null;
             currentlyPlayingTrack = null;
             $playButton.removeClass("btn-warning").addClass("btn-success");

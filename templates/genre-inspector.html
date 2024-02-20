@@ -1,64 +1,85 @@
-{% from 'macros.html' import playlist_tracks_table %}
-{% extends 'base.html' %} 
-{% block title %}{{ genre.title.title() }} Inspector{% endblock %} 
-{% block content %}
+{% from 'macros.html' import playlist_tracks_table %} {% extends 'base.html' %} {% block title %}{{
+genre.title.title() }} Inspector{% endblock %} {% block content %}
 
-    <div class="container">
-        <div class="row align-items-center mt-4 mb-4">
-            <div class="col-3">
-                {% if playlist.images %}
-                <img class="playlist-img img-responsive" width="100%" src="{{playlist.images[0].url}}" alt="Image (usualy album art) for the playlist">
+<div class="container">
+    <div class="row align-items-center mt-4 mb-4">
+        <div class="col-3">
+            {% if playlist.images %}
+            <img
+                class="playlist-img img-responsive"
+                width="100%"
+                src="{{playlist.images[0].url}}"
+                alt="Image (usualy album art) for the playlist"
+            />
+            {% endif %}
+        </div>
+        <div class="col-9">
+            <div class="row">
+                <h1 class="display-4">{{ playlist.name }}</h1>
+                {% if g.user %}
+                <h6><b>Last Explored: </b>{{ last_viewed }}</h6>
                 {% endif %}
             </div>
-            <div class="col-9">
-                <div class="row">
-                    <h1 class="display-4">{{ playlist.name }}</h1>
-                    {% if g.user %}
-                    <h6><b>Last Explored: </b>{{ last_viewed }}</h6>
-                    {% endif %}
-                </div>
 
-                {% if g.user %}
-                <div class="row">
-                    <div class="col">
-                        <div class="btn-group" role="group" aria-label="Toggle buttons to select your preference for the genre.">
-                            <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-favorite" autocomplete="off"
-                                {% if favorite_status == 'favorite'%}
-                                checked
-                                {% endif %}>
-                            <label id="favorite-label" class="btn btn-outline-success" for="btn-favorite" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorite Genre">
-                                <i class="{% if favorite_status == 'favorite' %}fa-solid{% else %}fa-regular{% endif %} fa-star"></i>
-                            </label>
+            {% if g.user %}
+            <div class="row">
+                <div class="col">
+                    <div
+                        class="btn-group"
+                        role="group"
+                        aria-label="Toggle buttons to select your preference for the genre."
+                    >
+                        <input type="radio" class="btn-check" name="btn-favorite-status"
+                        id="btn-favorite" autocomplete="off" {% if favorite_status == 'favorite'%}
+                        checked {% endif %}>
+                        <label
+                            id="favorite-label"
+                            class="btn btn-outline-success"
+                            for="btn-favorite"
+                            data-genre-id="{{ genre.id }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Favorite Genre"
+                        >
+                            <i class="fa-regular fa-star"></i>
+                        </label>
 
-                            <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-save" autocomplete="off"
-                                {% if favorite_status == 'save'%}
-                                checked
-                                {% endif %}>
-                            <label id="save-label" class="btn btn-outline-primary" for="btn-save" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Save Genre">
-                                <i class="{% if favorite_status == 'save' %}fa-solid{% else %}fa-regular{% endif %} fa-bookmark"></i>
-                            </label>
+                        <input type="radio" class="btn-check" name="btn-favorite-status"
+                        id="btn-save" autocomplete="off" {% if favorite_status == 'save'%} checked
+                        {% endif %}>
+                        <label
+                            id="save-label"
+                            class="btn btn-outline-primary"
+                            for="btn-save"
+                            data-genre-id="{{ genre.id }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Save Genre"
+                        >
+                            <i class="fa-regular fa-bookmark"></i>
+                        </label>
 
-                            <input type="radio" class="btn-check" name="btn-favorite-status" id="btn-dislike" autocomplete="off"
-                                {% if favorite_status == 'dislike'%}
-                                checked
-                                {% endif %}>
-                            <label id="dislike-label" class="btn btn-outline-danger" for="btn-dislike" data-genre-id="{{ genre.id }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Dislike Genre">
-                                <i class="{% if favorite_status == 'dislike' %}fa-solid{% else %}fa-regular{% endif %} fa-thumbs-down"></i>
-                            </label>
-                        </div>
+                        <input type="radio" class="btn-check" name="btn-favorite-status"
+                        id="btn-dislike" autocomplete="off" {% if favorite_status == 'dislike'%}
+                        checked {% endif %}>
+                        <label
+                            id="dislike-label"
+                            class="btn btn-outline-danger"
+                            for="btn-dislike"
+                            data-genre-id="{{ genre.id }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Dislike Genre"
+                        >
+                            <i class="fa-regular fa-thumbs-down"></i>
+                        </label>
                     </div>
                 </div>
-                {% endif %}
-                
-            </div> 
+            </div>
+            {% endif %}
         </div>
-        {% if g.user %}
-            
-            
-        {% endif %}
-            
-        {{ playlist_tracks_table(playlist.id, genre.title, source) }}
-
     </div>
+    {% if g.user %} {% endif %} {{ playlist_tracks_table(playlist.id, genre.title, source) }}
+</div>
 
 {% endblock %}
