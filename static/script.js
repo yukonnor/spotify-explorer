@@ -38,6 +38,7 @@ function process_genre_preference_click(favorite_status) {
 
 $(document).ready(function () {
     /* Event listeners for genre favorite status buttons */
+
     $("#favorite-label").click(function () {
         process_genre_preference_click("favorite");
     });
@@ -143,10 +144,15 @@ function playPreview(previewUrl, buttonElement) {
         console.log("Same button clicked. If playing, pause. If paused, play.");
 
         if (audioPlayer.paused) {
+            console.log("Audio player was paused.");
             audioPlayer.play();
+            console.log("audioPlayer.play()");
+            console.log("audioPlayer.src:", audioPlayer.src);
+            console.log("audioPlayer.paused: ", audioPlayer.paused);
             $playButton.removeClass("btn-success").addClass("btn-warning");
             $playIcon.removeClass("fa-circle-play").addClass("fa-circle-pause");
         } else {
+            console.log("Audio player was playing. Pausing audio player.");
             audioPlayer.pause();
             $playButton.removeClass("btn-warning").addClass("btn-success");
             $playIcon.removeClass("fa-circle-pause").addClass("fa-circle-play");
@@ -158,6 +164,11 @@ function playPreview(previewUrl, buttonElement) {
 
         audioPlayer.src = previewUrl;
         audioPlayer.play();
+
+        console.log("audioPlayer.play()");
+        console.log("audioPlayer.src:", audioPlayer.src);
+        console.log("audioPlayer.paused: ", audioPlayer.paused);
+
         currentlyPlayingButton = $playButton;
         currentlyPlayingTrack = previewUrl;
 
@@ -166,6 +177,7 @@ function playPreview(previewUrl, buttonElement) {
 
         // Attach an event listener for the 'ended' event to reset the playback state
         audioPlayer.addEventListener("ended", function () {
+            console.log("Audio ended.");
             currentlyPlayingButton = null;
             currentlyPlayingTrack = null;
             $playButton.removeClass("btn-warning").addClass("btn-success");

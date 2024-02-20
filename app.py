@@ -26,8 +26,6 @@ app.config['SQLALCHEMY_ECHO'] =  False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 # app.app_context().push() # remove when done testing
 
-# app.run(debug=False) 
-
 connect_db(app)
 
 spotify = SpotifyClient()
