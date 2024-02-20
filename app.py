@@ -32,7 +32,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///spotify_explorer'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://xeeinqho:sql3hCFM34G5F08S6-nxTxiJSkjLAoEE@bubble.db.elephantsql.com/xeeinqho'
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql:///spotify_explorer_test'
