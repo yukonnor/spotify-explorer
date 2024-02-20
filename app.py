@@ -17,7 +17,7 @@ CURR_USER_KEY = "logged_in_user"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = FLASK_SECRET_KEY
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///spotify_explorer'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://xeeinqho:sql3hCFM34G5F08S6-nxTxiJSkjLAoEE@bubble.db.elephantsql.com/xeeinqho'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']  =  False
 
 # Development helpters
@@ -26,27 +26,7 @@ app.config['SQLALCHEMY_ECHO'] =  False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 # app.app_context().push() # remove when done testing
 
-app.run(debug=False) 
-  
-class Config:
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql://xeeinqho:sql3hCFM34G5F08S6-nxTxiJSkjLAoEE@bubble.db.elephantsql.com/xeeinqho'
-
-class TestingConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///spotify_explorer_test'
-    TESTING = True
-
-# Specify the configuration directly in the app based on an environment variable or any other logic
-config_name = 'production'  # Change this to 'testing' when running tests
-
-if config_name == 'production':
-    app.config.from_object(ProductionConfig)
-elif config_name == 'testing':
-    app.config.from_object(TestingConfig)
-else:
-    app.config.from_object(Config)
+# app.run(debug=False) 
 
 connect_db(app)
 
