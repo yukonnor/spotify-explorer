@@ -8,7 +8,7 @@
                 <a href="/genre-inspector/{{ genre_title }}?source=spotify"><button type="button" class="btn btn-warning mb-2">Try Spotify's {{ genre_title.title() }} Playlist <i class="fa-solid fa-arrows-rotate"></i></button></a>
             {% endif %}
         {% endif %}
-        <a href="{{playlist_link}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
+        <a href="https://open.spotify.com/playlist/{{playlist_id}}" target="_blank"><button type="button" class="btn btn-primary mb-2">Open Playlist <i class="fa-solid fa-arrow-up-right-from-square"></i></button></a>
         <button type="button" class="btn btn-secondary mb-2" data-bs-toggle="modal" data-bs-target="#playlistExplainModal"><i class="fa-regular fa-circle-question"></i></i></button>
     </div>
     <div class="table-responsive">

@@ -270,7 +270,7 @@ class SpotifyClient:
         search_url = "https://api.spotify.com/v1/search"
 
         if source == 'spotify':
-            query = f'{genre_title} mix'
+            query = f'{genre_title}'
         elif source == 'thesoundsofspotify':
             query = f'the sound of {genre_title}'
 
