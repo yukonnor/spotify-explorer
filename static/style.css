@@ -62,3 +62,7 @@ th:nth-child(5) {
 td a {
     color: white;
 }
+
+a:link {
+    text-decoration: none;
+}
