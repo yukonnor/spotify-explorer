@@ -257,8 +257,10 @@ def genre_inspector(genre_title):
 
     if source == 'spotify' or source == 'thesoundsofspotify':
         playlist_id =spotify.get_playlist_by_genre(genre_title, source)
+        alt_source = 'thesoundsofspotify' if source == 'spotify' else 'spotify'
     elif source is None:
         playlist_id =spotify.get_playlist_by_genre(genre_title, 'spotify')
+        alt_source = 'thesoundsofspotify'
     else: 
         flash("I don't currently support the type of playlist you were looking for.", "warning")
         return redirect('/')
@@ -266,9 +268,8 @@ def genre_inspector(genre_title):
     playlist_info_payload = spotify.get_playlist_info(playlist_id)
 
     if not playlist_info_payload:
-        # Question: What is a better way to handle this? How can I get status code (or other error details) from get_playlist_info() to include in flash message?
-        flash("Wasn't able to fetch the playlist :/  (Devs: see logs for details)", "warning")  
-        return redirect('/')
+        flash(f"""Wasn't able to find {source.title()}'s playlist for that genre :/  Try looking for <a href="/genre-inspector/{genre_title}?source={alt_source}">{alt_source.title()}'s version</a>.""", "warning")  
+        return redirect(request.referrer or '/')
     
     playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
 

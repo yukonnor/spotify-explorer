@@ -301,7 +301,7 @@ class SpotifyClient:
             playlist_title = playlist['name']
             if owner_id == source and genre_title in playlist_title.lower():
                 return playlist['id']
-
+       
         # If no offcial spotify or 'every noise' playlist found, return None 
         return None 
     

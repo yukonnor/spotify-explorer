@@ -85,12 +85,18 @@ function artistNameFormatter(value, row) {
     }
 }
 
+let playlist_source = $("h1").data("source");
+
 function artistGenresFormatter(value, row) {
     // value is a list a genres associated with the artist
     if (value) {
         let genresHtml = "";
         for (genre of value) {
-            genresHtml += `<a href="/genre-inspector/${genre}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">${genre}</span></a>`;
+            if (playlist_source === "thesoundsofspotify") {
+                genresHtml += `<a href="/genre-inspector/${genre}?source=${playlist_source}"><span class="genre badge rounded-pill text-bg-warning mr-1">${genre}</span></a>`;
+            } else {
+                genresHtml += `<a href="/genre-inspector/${genre}?source=spotify"><span class="genre badge rounded-pill text-bg-warning mr-1">${genre}</span></a>`;
+            }
         }
         return genresHtml;
     } else {

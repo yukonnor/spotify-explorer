@@ -15,7 +15,7 @@ genre.title.title() }} Inspector{% endblock %} {% block content %}
         </div>
         <div class="col-9">
             <div class="row">
-                <h1 class="display-4">{{ playlist.name }}</h1>
+                <h1 data-source="{{source}}" class="display-4">{{ playlist.name }}</h1>
                 {% if g.user %}
                 <h6><b>Last Explored: </b>{{ last_viewed }}</h6>
                 {% endif %}
