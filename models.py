@@ -1,6 +1,7 @@
 """Models for the Spotify Explorer app"""
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm.exc import NoResultFound
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 
@@ -73,6 +74,8 @@ class User(db.Model):
         )
 
         db.session.add(user)
+        db.session.commit()
+
         return user
 
     @classmethod
@@ -83,17 +86,21 @@ class User(db.Model):
         It searches for a user whose password hash matches this password
         and, if it finds such a user, returns that user object.
 
-        If can't find matching user (or if password is wrong), returns False.
+        If can't find matching user (or if password is wrong), raise an error noting
+        whether the user couln't be found or password incorrect.
         """
 
-        user = cls.query.filter_by(username=username.lower()).first()
+        try:
+            user = cls.query.filter_by(username=username.lower()).one()
+        except NoResultFound:
+            raise NoResultFound("User not found with the provided username")
 
-        if user:
-            is_auth = bcrypt.check_password_hash(user.password, password)
-            if is_auth:
-                return user
+        authenticated = bcrypt.check_password_hash(user.password, password)
+        
+        if not authenticated:
+            raise ValueError("Incorrect password")
 
-        return False
+        return user
     
     def __repr__(self):
         u = self
@@ -150,6 +157,16 @@ class Genre(db.Model):
                                      overlaps='favorited_by_users, saved_by_users',
                                      viewonly=True)
     
+    @classmethod
+    def lookup_genre(cls, genre_title):
+        """See if genre is in the genre table. If so, return it. Otherwise return None."""
+        # Parse genre to sql search string with wildcards
+        genre_title = genre_title.lower()
+        genre_title_wildcards = genre_title.replace(' ', '%')
+
+        return Genre.query.filter(Genre.title.like(genre_title_wildcards)).first() 
+   
+   
     def __repr__(self):
         return f"<Genre id={self.id} title={self.title}>"
     
@@ -185,6 +202,18 @@ class User_Genre(db.Model):
     
 
     @classmethod
+    def update_user_genre_fav_status(cls, user_id, genre_id, favorite_status):
+        """Get and update a user's favorite status for a genre."""
+
+        try:
+            user_genre = cls.query.filter(cls.user_id == user_id, cls.genre_id == genre_id).one()
+        except NoResultFound:
+            raise NoResultFound("User doesn't have relationship to genre.")
+        
+        user_genre.favorite_status = favorite_status
+        db.session.commit()
+    
+    @classmethod
     def get_user_genre_facts(cls, genre, user_id):
         """Get the last_view date or string and the favorite status for a user and genre."""
 
@@ -219,12 +248,4 @@ class User_Genre(db.Model):
         self.last_viewed = datetime.now()
         db.session.commit()
 
-
-
     
-# Future Models to Consider:
-# Genre_Category: a table used to organize genres by category so that they can easily be browsed / navigated
-# Playlists: store data locally about a user's playlists that they have inspected.
-# User_Playlists: join users to playlists. 
-    
-

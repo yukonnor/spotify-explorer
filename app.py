@@ -13,6 +13,7 @@ from spotify_client import SpotifyClient
 # - Genre index list
 # - Genre attributes display
 
+TESTING = False   # Set True here if you are running tests
 CURR_USER_KEY = "logged_in_user"
 
 app = Flask(__name__)
@@ -24,9 +25,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS']  =  False
 app.testing = False
 app.config['SQLALCHEMY_ECHO'] =  False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-app.app_context().push() # remove when done testing
 
-connect_db(app)  
+if TESTING: 
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///spotify_explorer_test'
+    app.app_context().push() 
+    app.testing = True
+
+connect_db(app) 
 
 spotify = SpotifyClient()
 
@@ -91,7 +96,6 @@ def signup():
                 password=form.password.data,
                 email=form.email.data
             )
-            db.session.commit()
 
         except IntegrityError:
             flash("Username or email already taken", 'danger')
@@ -118,16 +122,24 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data,
-                                form.password.data)
 
-        if user:
-            do_login(user)
-            flash(f"Hello, {user.username}.", "success")
-            return redirect(f"/users/{user.id}")
+        try:
+            user = User.authenticate(form.username.data, form.password.data)      
+      
+        except NoResultFound as e:
+            print(f"Error: {e}")
+            flash("Couldn't find an account with that username...", 'danger')
+            return render_template('login.html', form=form)
+        
+        except ValueError as e:
+            print(f"Error: {e}")
+            flash("Invalid username/password...", 'danger')
+            return render_template('login.html', form=form)
 
-        flash("Invalid username/password...", 'danger')
-        return render_template('login.html', form=form)
+        # if user not found, exception will be raised, so it is safe to log in user:
+        do_login(user)
+        flash(f"Hello, {user.username}.", "success")
+        return redirect(f"/users/{user.id}")        
 
     return render_template('login.html', form=form)
 
@@ -222,16 +234,9 @@ def search_genre():
     """Process the 'search genre' form, redirecting user to the genre inspector page for the genre."""
 
     genre_title = request.args.get('genre')
-    genre_title = genre_title.lower()
-
-    genre_title_wildcards = genre_title.replace(' ', '%')
 
     # See if genre in db
-    try:
-        genre = Genre.query.filter(Genre.title.like(genre_title_wildcards)).first()
-    except NoResultFound:
-        flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
-        return redirect('/genres')    
+    genre = Genre.lookup_genre(genre_title)
     
     if genre:
         return redirect(f'/genre-inspector/{genre.title}')
@@ -243,11 +248,11 @@ def search_genre():
 def genre_inspector(genre_title):
 
     # See if genre in db
-    try:
-        genre = Genre.query.filter(Genre.title == genre_title).one()
-    except NoResultFound:
-            flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
-            return redirect('/genres')    
+    genre = Genre.lookup_genre(genre_title)
+    
+    if not genre:
+        flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
+        return redirect('/genres')    
     
     # If user logged in, get genre favorite status last time user viewed genre:
     if g.user:
@@ -260,10 +265,11 @@ def genre_inspector(genre_title):
     source = request.args.get('source')
 
     if source == 'spotify' or source == 'thesoundsofspotify':
-        playlist_id =spotify.get_playlist_by_genre(genre_title, source)
+        playlist_id = spotify.get_playlist_by_genre(genre.title, source)
         alt_source = 'thesoundsofspotify' if source == 'spotify' else 'spotify'
     elif source is None:
-        playlist_id =spotify.get_playlist_by_genre(genre_title, 'spotify')
+        source = 'spotify'
+        playlist_id = spotify.get_playlist_by_genre(genre.title, source)
         alt_source = 'thesoundsofspotify'
     else: 
         flash("I don't currently support the type of playlist you were looking for.", "warning")
@@ -272,7 +278,7 @@ def genre_inspector(genre_title):
     playlist_info_payload = spotify.get_playlist_info(playlist_id)
 
     if not playlist_info_payload:
-        flash(f"""Wasn't able to find {source.title()}'s playlist for that genre :/  Try looking for <a href="/genre-inspector/{genre_title}?source={alt_source}">{alt_source.title()}'s version</a>.""", "warning")  
+        flash(f"""Wasn't able to find {source.title()}'s playlist for that genre :/  Try looking for <a href="/genre-inspector/{genre.title}?source={alt_source}">{alt_source.title()}'s version</a>.""", "warning")  
         return redirect(request.referrer or '/')
     
     playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
@@ -292,11 +298,8 @@ def update_genre_favorite_status():
         genre_id = data.get('genre_id')
         favorite_status = data.get('favorite_status')
 
-        # Get and update user_genre record
-        user_genre = User_Genre.query.filter(User_Genre.user_id == g.user.id, User_Genre.genre_id == genre_id).first()
-
-        user_genre.favorite_status = favorite_status
-        db.session.commit()
+        # Update user_genre record
+        User_Genre.update_user_genre_fav_status(g.user.id, genre_id, favorite_status)
 
         # Assuming success, return a JSON response
         return jsonify({'message': 'Update successful'})
@@ -343,10 +346,3 @@ def extract_playlist_id(link):
     playlist_id = parts[playlist_index + 1].split('?')[0]
 
     return playlist_id
-
-
-# remove when done testing
-# if __name__ == '__main__':
-#     app.app_context().push() # remove when done testing
-#     connect_db(app)
-#     app.run(debug=True)  

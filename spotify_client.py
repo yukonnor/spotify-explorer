@@ -263,6 +263,7 @@ class SpotifyClient:
 
         return top_tracks_payload
         
+
     def get_playlist_by_genre(self, genre_title, source):
         """ Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API. """
         
@@ -300,6 +301,9 @@ class SpotifyClient:
     def find_matching_playlist(self, playlist_search_results, genre_title, source):
         """Find either Spotify's or TheSoundofSpotify's genre playlist in the playlist search results."""
 
+        # if one of the few genres that doesn't match the norm, update it's title
+        genre_title = self.replace_genre_title(genre_title)
+
         for playlist in playlist_search_results:
             owner_id = playlist['owner']['id']
             playlist_title = playlist['name']
@@ -308,6 +312,7 @@ class SpotifyClient:
             if source == 'thesoundsofspotify' and owner_id == 'thesoundsofspotify' and genre_title in playlist_title.lower():
                 return playlist['id']
             # If the source is spotify, we need to have some deeper searching as they change things up from genre to genre
+            # First look for exact match:
             elif source == 'spotify' and owner_id == 'spotify' and genre_title == playlist_title.lower():
                 return playlist['id']
 
@@ -325,6 +330,18 @@ class SpotifyClient:
         # If no offcial spotify or 'every noise' playlist found, return None 
         return None 
     
+    def replace_genre_title(self, genre_title):
+        """Replace genre title the off genres that don't lead to expected search results."""
+       
+        original_genre_titles = ["rock-and-roll"]
+        updated_genre_titles = ["rock and roll"]     
+          
+        try:
+            index = original_genre_titles.index(genre_title)
+            return updated_genre_titles[index]
+        except ValueError:
+            return genre_title
+
     def should_retry(self, response):
         return response.status_code == 401 and response.json()['error']['message'] == "The access token expired"
     
