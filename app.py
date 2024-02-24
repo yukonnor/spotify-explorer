@@ -232,8 +232,12 @@ def search_genre():
     except NoResultFound:
         flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
         return redirect('/genres')    
-
-    return redirect(f'/genre-inspector/{genre.title}')
+    
+    if genre:
+        return redirect(f'/genre-inspector/{genre.title}')
+    else:
+        flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
+        return redirect('/genres')  
 
 @app.route('/genre-inspector/<genre_title>')
 def genre_inspector(genre_title):

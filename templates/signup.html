@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block title %}Sign Up{% endblock %} {% block content %}
+{% extends 'base.html' %} 
+{% block title %}Sign Up{% endblock %} 
+{% block content %}
 
 <div class="container">
     <div class="row justify-content-md-center mt-5">
@@ -14,12 +16,13 @@
                 passwords. For now....remember your password.
             </div>
             <form method="POST" id="login_form">
-                {{ form.hidden_tag() }} {% for field in form if field.widget.input_type != 'hidden'
-                %} {% for error in field.errors %}
-                <span class="text-danger">{{ error }}</span>
-                {% endfor %} {{ field(placeholder=field.label.text, class="form-control mt-3 mb-3")
-                }} {% endfor %}
-
+                {{ form.hidden_tag() }} 
+                {% for field in form if field.widget.input_type != 'hidden'%} 
+                    {% for error in field.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %} 
+                {{ field(placeholder=field.label.text, class="form-control mt-3 mb-3")}} 
+                {% endfor %}
                 <button class="btn btn-primary btn-block btn-lg">Sign Up</button>
             </form>
         </div>

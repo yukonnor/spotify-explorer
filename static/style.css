@@ -63,6 +63,6 @@ td a {
     color: white;
 }
 
-a:link {
+.list-group-item a:link {
     text-decoration: none;
 }

@@ -263,10 +263,9 @@ class SpotifyClient:
 
         return top_tracks_payload
         
-
     def get_playlist_by_genre(self, genre_title, source):
         """ Find either the official Spotify playist or "Every Noise's" thesoundsofspotify playlist for the genre using the Spotify Search API. """
-
+        
         search_url = "https://api.spotify.com/v1/search"
 
         if source == 'spotify':
@@ -296,10 +295,31 @@ class SpotifyClient:
         # Got a successful response. Continue...
         playlist_search_results = response.json().get('playlists', {}).get('items', {})
 
+        return self.find_matching_playlist(playlist_search_results, genre_title, source) 
+    
+    def find_matching_playlist(self, playlist_search_results, genre_title, source):
+        """Find either Spotify's or TheSoundofSpotify's genre playlist in the playlist search results."""
+
         for playlist in playlist_search_results:
             owner_id = playlist['owner']['id']
             playlist_title = playlist['name']
-            if owner_id == source and genre_title in playlist_title.lower():
+
+            # If the source is thesoundsofspotify, the playlist name will always be "The Sound of {Genre}"
+            if source == 'thesoundsofspotify' and owner_id == 'thesoundsofspotify' and genre_title in playlist_title.lower():
+                return playlist['id']
+            # If the source is spotify, we need to have some deeper searching as they change things up from genre to genre
+            elif source == 'spotify' and owner_id == 'spotify' and genre_title == playlist_title.lower():
+                return playlist['id']
+
+        # If spotify and no exact match found, we should go through list again to look for a "{Genre} Mix" playlist
+        for playlist in playlist_search_results:
+            owner_id = playlist['owner']['id']
+            playlist_title = playlist['name']
+
+            if source == 'thesoundsofspotify':
+                break
+
+            if owner_id == 'spotify' and f"{genre_title} mix" == playlist_title.lower():
                 return playlist['id']
        
         # If no offcial spotify or 'every noise' playlist found, return None 
