@@ -6,6 +6,7 @@ from forms import SignUpForm, LoginForm
 from models import db, connect_db, User, Genre, User_Genre
 from config import FLASK_SECRET_KEY, SQLALCHEMY_DATABASE_URI_PROD
 from spotify_client import SpotifyClient
+from enums import FavoriteStatus, FAVORITE_STATUS_MAP
 
 # TODO:
 # - Genre filter on table
@@ -19,6 +20,7 @@ CURR_USER_KEY = "logged_in_user"
 app = Flask(__name__)
 app.config['SECRET_KEY'] = FLASK_SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI_PROD
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///spotify_explorer'  # Local DB if preferred for development
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']  =  False
 
 # Development helpters
@@ -165,9 +167,11 @@ def show_profile(user_id):
         return redirect(f"/users/{session[CURR_USER_KEY]}")
 
     user = User.query.get_or_404(user_id)
-    favorite_genres = user.favorite_genres
-    saved_genres = user.saved_genres
-    disliked_genres = user.disliked_genres
+    favorite_genres = user.favorite_genres()
+    saved_genres = user.saved_genres()
+    disliked_genres = user.disliked_genres()
+
+    # TODO: or create a new dict for user_data that contains the data that the page needs.
     
     return render_template('profile.html', user=user, favorite_genres=favorite_genres, saved_genres=saved_genres, disliked_genres=disliked_genres)
 
@@ -246,9 +250,10 @@ def search_genre():
 
 @app.route('/genre-inspector/<genre_title>')
 def genre_inspector(genre_title):
+    """View the Spotify of Sounds of Spotify playlist for a genre."""
 
     # See if genre in db
-    genre = Genre.lookup_genre(genre_title)
+    genre = Genre.lookup_genre(genre_title) # TODO: See if this could be improved with try except instead of if else
     
     if not genre:
         flash("Gah, sorry. I couldn't find that genre in Spotify's genre list.", 'warning')
@@ -283,7 +288,7 @@ def genre_inspector(genre_title):
     
     playlist_link = f'https://open.spotify.com/playlist/{playlist_id}'
 
-    return render_template('genre-inspector.html', genre=genre, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed, favorite_status=favorite_status)
+    return render_template('genre-inspector.html', genre=genre, source=source, playlist=playlist_info_payload, playlist_link=playlist_link, last_viewed=last_viewed, favorite_status=favorite_status, FavoriteStatus=FavoriteStatus)
 
 @app.route('/users/update-genre-favorite-status', methods=["POST"])
 @login_required
@@ -298,8 +303,10 @@ def update_genre_favorite_status():
         genre_id = data.get('genre_id')
         favorite_status = data.get('favorite_status')
 
+        favorite_status_enum = FAVORITE_STATUS_MAP.get(favorite_status)
+
         # Update user_genre record
-        User_Genre.update_user_genre_fav_status(g.user.id, genre_id, favorite_status)
+        User_Genre.update_user_genre_fav_status(g.user.id, genre_id, favorite_status_enum)
 
         # Assuming success, return a JSON response
         return jsonify({'message': 'Update successful'})

@@ -32,10 +32,10 @@
                         aria-label="Toggle buttons to select your preference for the genre."
                     >
                         <input type="radio" class="btn-check" name="btn-favorite-status"
-                        id="btn-favorite" autocomplete="off" {% if favorite_status == 'favorite'%}
+                        id="btn-favorite" autocomplete="off" {% if favorite_status == FavoriteStatus.FAVORITE %}
                         checked {% endif %}>
                         <label
-                            id="favorite-label"
+                            id="{{FavoriteStatus.FAVORITE.value}}-label"
                             class="btn btn-outline-success"
                             for="btn-favorite"
                             data-genre-id="{{ genre.id }}"
@@ -47,10 +47,10 @@
                         </label>
 
                         <input type="radio" class="btn-check" name="btn-favorite-status"
-                        id="btn-save" autocomplete="off" {% if favorite_status == 'save'%} checked
+                        id="btn-save" autocomplete="off" {% if favorite_status == FavoriteStatus.SAVE %} checked
                         {% endif %}>
                         <label
-                            id="save-label"
+                            id="{{FavoriteStatus.SAVE.value}}-label"
                             class="btn btn-outline-primary"
                             for="btn-save"
                             data-genre-id="{{ genre.id }}"
@@ -62,10 +62,10 @@
                         </label>
 
                         <input type="radio" class="btn-check" name="btn-favorite-status"
-                        id="btn-dislike" autocomplete="off" {% if favorite_status == 'dislike'%}
+                        id="btn-dislike" autocomplete="off" {% if favorite_status == FavoriteStatus.DISLIKE %}
                         checked {% endif %}>
                         <label
-                            id="dislike-label"
+                            id="{{FavoriteStatus.DISLIKE.value}}-label"
                             class="btn btn-outline-danger"
                             for="btn-dislike"
                             data-genre-id="{{ genre.id }}"

@@ -1,9 +1,11 @@
 """Models for the Spotify Explorer app"""
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, Enum
 from sqlalchemy.orm.exc import NoResultFound
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+
+from enums import FavoriteStatus
 
 bcrypt = Bcrypt()
 
@@ -41,22 +43,20 @@ class User(db.Model):
                            default=datetime.now())
 
     # SQLA relationships
-    favorite_genres = db.relationship('Genre', secondary='users_genres',
-                                  primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='favorite')",
-                                  secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='favorite')",
-                                  back_populates='favorited_by_users',
-                                  overlaps='saved_genres, disliked_genres')
+    user_genres = db.relationship('User_Genre', backref='user')
+                            #  back_populates='users')
 
-    saved_genres = db.relationship('Genre', secondary='users_genres',
-                               primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='save')",
-                               secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='save')",
-                               back_populates='saved_by_users')
+    def favorite_genres(self):
+        """Return list of Genre objects for genre's that this user has favorited."""
+        return [ug.genre for ug in self.user_genres if ug.favorite_status == FavoriteStatus.FAVORITE]
 
-    disliked_genres = db.relationship('Genre', secondary='users_genres',
-                                  primaryjoin="and_(User.id==User_Genre.user_id, User_Genre.favorite_status=='dislike')",
-                                  secondaryjoin="and_(User_Genre.genre_id==Genre.id, User_Genre.favorite_status=='dislike')",
-                                  back_populates='disliked_by_users',
-                                  overlaps='favorite_genres, saved_genres')
+    def saved_genres(self):
+        """Return list of Genre objects for genre's that this user has saved."""
+        return [ug.genre for ug in self.user_genres if ug.favorite_status == FavoriteStatus.SAVE]
+
+    def disliked_genres(self):
+        """Return list of Genre objects for genre's that this user has disliked."""
+        return [ug.genre for ug in self.user_genres if ug.favorite_status == FavoriteStatus.DISLIKE]
 
     @classmethod
     def signup(cls, username, email, password):
@@ -136,26 +136,20 @@ class Genre(db.Model):
     en_popularity_score = db.Column(db.Integer)
 
     # SQLA relationships
-    favorited_by_users = db.relationship('User', secondary='users_genres',
-                                     primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='favorite')",
-                                     secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='favorite')",
-                                     back_populates='favorite_genres',
-                                     overlaps='saved_by_users, disliked_by_users',
-                                     viewonly=True)
+    user_genres = db.relationship('User_Genre', backref='genre')
 
-    saved_by_users = db.relationship('User', secondary='users_genres',
-                                  primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='save')",
-                                  secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='save')",
-                                  back_populates='saved_genres',
-                                  overlaps='favorited_by_users, disliked_by_users',
-                                  viewonly=True)
+    def favorited_by_users(self):
+        """Return users that marked this genres as 'favorite'"""
+        return [ug.user for ug in self.user_genres if ug.favorite_status == FavoriteStatus.FAVORITE]
 
-    disliked_by_users = db.relationship('User', secondary='users_genres',
-                                     primaryjoin="and_(Genre.id==User_Genre.genre_id, User_Genre.favorite_status=='dislike')",
-                                     secondaryjoin="and_(User_Genre.user_id==User.id, User_Genre.favorite_status=='dislike')",
-                                     back_populates='disliked_genres',
-                                     overlaps='favorited_by_users, saved_by_users',
-                                     viewonly=True)
+    def saved_by_users(self):
+        """Return users that marked this genres as 'saved'"""
+        return [ug.user for ug in self.user_genres if ug.favorite_status == FavoriteStatus.SAVE]
+
+    def disliked_by_users(self):
+        """Return users that marked this genres as 'disliked'"""
+        return [ug.user for ug in self.user_genres if ug.favorite_status == FavoriteStatus.DISLIKE]
+
     
     @classmethod
     def lookup_genre(cls, genre_title):
@@ -187,8 +181,7 @@ class User_Genre(db.Model):
                         db.ForeignKey('genres.id', ondelete='CASCADE'),
                         nullable=False)
 
-    # Will store ENUM: favorite, like, dislike
-    favorite_status = db.Column(db.String(50))
+    favorite_status = db.Column(Enum(FavoriteStatus), nullable=True)
     
     last_viewed = db.Column(db.DateTime,
                             nullable=False,
@@ -202,7 +195,7 @@ class User_Genre(db.Model):
     
 
     @classmethod
-    def update_user_genre_fav_status(cls, user_id, genre_id, favorite_status):
+    def update_user_genre_fav_status(cls, user_id, genre_id, favorite_status_enum):
         """Get and update a user's favorite status for a genre."""
 
         try:
@@ -210,7 +203,7 @@ class User_Genre(db.Model):
         except NoResultFound:
             raise NoResultFound("User doesn't have relationship to genre.")
         
-        user_genre.favorite_status = favorite_status
+        user_genre.favorite_status = favorite_status_enum
         db.session.commit()
     
     @classmethod

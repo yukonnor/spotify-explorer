@@ -1,6 +1,7 @@
 """Seed file to import genres and to make sample data for Spotify Explorer db."""
 
 from models import db, connect_db, User, Genre, User_Genre
+from enums import FavoriteStatus
 from app import app
 from research.genre_dict_list import genre_dict_list
 
@@ -35,15 +36,15 @@ with app.app_context():
     # Add user genres
     ug1 = User_Genre(user_id=condor.id, 
                         genre_id=1,
-                        favorite_status='favorite')
+                        favorite_status=FavoriteStatus.FAVORITE)
 
     ug2 = User_Genre(user_id=condor.id, 
                         genre_id=2,
-                        favorite_status='save')
+                        favorite_status=FavoriteStatus.SAVE)
 
     ug3 = User_Genre(user_id=condor.id, 
                         genre_id=3,
-                        favorite_status='dislike')
+                        favorite_status=FavoriteStatus.DISLIKE)
 
     db.session.add_all([ug1, ug2, ug3])
     db.session.commit()

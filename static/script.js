@@ -13,6 +13,8 @@ function process_genre_preference_click(favorite_status) {
         favorite_status: favorite_status,
     };
 
+    console.log(data);
+
     $.ajax({
         url: "/users/update-genre-favorite-status",
         type: "POST",
@@ -34,6 +36,7 @@ function process_genre_preference_click(favorite_status) {
 $(document).ready(function () {
     /* Event listeners for genre favorite status buttons */
 
+    // Note: using enum values here.
     $("#favorite-label").click(function () {
         process_genre_preference_click("favorite");
     });
