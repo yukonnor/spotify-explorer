@@ -4,7 +4,7 @@
 
 **URL:** https://spotify-explorer.onrender.com/
 
-![Screenshot 2024-02-19 at 3 42 01 PM](https://github.com/hatchways-community/capstone-project-one-759b191e666f4d7d93b26845cc374036/assets/22033835/788de627-75d7-4cdb-817b-d2931b281b1c)
+![Spotify Explorer Preview](https://github.com/yukonnor/spotify-explorer/blob/main/static/images/Spotify%20Explorer%20UI%20Sample.png "Spotify Explorer Preview")
 
 ## About the Spotify Explorer
 
@@ -82,7 +82,7 @@ To run tests:
 
 ## DB Schema
 
-![db diagram](https://github.com/hatchways-community/capstone-project-one-759b191e666f4d7d93b26845cc374036/assets/22033835/44221d25-0a13-452a-a136-fcffe76a0879)
+![Spotify Explorer db diagram](https://github.com/yukonnor/spotify-explorer/blob/main/static/images/Spotify%20Explorer%20DB%20Schema.png "Spotify Explorer DB Schema")
 
 _Future:_
 
